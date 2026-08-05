@@ -3,11 +3,14 @@
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { copy } from "@/lib/copy";
 import { db } from "@/lib/db";
 import { loginSchema, registerSchema } from "@/lib/validations/item";
 
+export async function signOutAction() {
+  await signOut({ redirectTo: "/login" });
+}
 export async function googleSignInAction() {
   await signIn("google", { redirectTo: "/" });
 }

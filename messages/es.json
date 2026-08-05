@@ -2,7 +2,17 @@
   "app": {
     "name": "Cerebrizky",
     "tagline": "Segundo cerebro",
-    "description": "Sistema para capturar, organizar y recuperar conocimiento personal"
+    "description": "Sistema para capturar, organizar y recuperar conocimiento personal",
+    "meshTemplates": "Fondo",
+    "aurora": "Aurora",
+    "mesh": {
+      "Quantum Entanglement": "Entrelazamiento",
+      "Elastic Spiderweb": "Telaraña",
+      "Constellation Curves": "Constelación",
+      "Living Origami": "Origami",
+      "Magnetic Topography": "Topografía",
+      "Cybernetic Circuits": "Circuitos"
+    }
   },
   "auth": {
     "email": "Email",
@@ -37,7 +47,25 @@
     "alwaysOpen": "Siempre abierta",
     "back": "Volver al cerebro",
     "searchLabel": "Buscar",
-    "searchDescription": "Encontrá en todas las regiones"
+    "searchDescription": "Encontrá en todas las regiones",
+    "meta": {
+      "unclassified": "{n} sin clasificar",
+      "newCount": "{n} nuevas",
+      "pending": "{n} pendientes",
+      "active": "{n} activos",
+      "toRead": "{n} por leer",
+      "lastFeminine": "Última: {when}",
+      "lastMasculine": "Último: {when}",
+      "search": "En todas las regiones",
+      "empty": "Sin actividad reciente"
+    }
+  },
+  "time": {
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "daysAgo": "Hace {n} días",
+    "monthAgo": "Hace 1 mes",
+    "monthsAgo": "Hace {n} meses"
   },
   "regions": {
     "IDEA": {

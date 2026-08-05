@@ -2,37 +2,140 @@
 
 import { ItemType } from "@prisma/client";
 
+import { copy, fill } from "@/lib/copy";
 import { db } from "@/lib/db";
+import { formatRelativeShort } from "@/lib/relative-time";
 import { REGION_META } from "@/lib/validations/item";
 import { requireUserId } from "@/server/auth";
 
-export type BrainRegion = {
-  type: ItemType;
+export type BrainModule = {
+  key: string;
+  type?: ItemType;
   label: string;
   href: string;
   description: string;
   count: number;
+  meta: string;
+  accent: string;
+  layoutId: string;
+  always?: boolean;
 };
 
-export async function getBrainRegions(): Promise<{
-  regions: BrainRegion[];
-  inboxCount: number;
+export async function getBrainOverview(): Promise<{
+  modules: BrainModule[];
   totalCount: number;
 }> {
   const userId = await requireUserId();
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const grouped = await db.item.groupBy({
-    by: ["type"],
-    where: { userId, archivedAt: null },
-    _count: { _all: true },
-  });
+  const [grouped, pendingTasks, activeProjects, toReadBooks, newIdeas] =
+    await Promise.all([
+      db.item.groupBy({
+        by: ["type"],
+        where: { userId, archivedAt: null },
+        _count: { _all: true },
+        _max: { updatedAt: true },
+      }),
+      db.item.count({
+        where: {
+          userId,
+          archivedAt: null,
+          type: ItemType.TASK,
+          status: { in: ["todo", "doing"] },
+        },
+      }),
+      db.item.count({
+        where: {
+          userId,
+          archivedAt: null,
+          type: ItemType.PROJECT,
+          status: "active",
+        },
+      }),
+      db.item.count({
+        where: {
+          userId,
+          archivedAt: null,
+          type: ItemType.BOOK,
+          status: "to_read",
+        },
+      }),
+      db.item.count({
+        where: {
+          userId,
+          archivedAt: null,
+          type: ItemType.IDEA,
+          createdAt: { gte: weekAgo },
+        },
+      }),
+    ]);
 
   const counts = Object.fromEntries(
     grouped.map((row) => [row.type, row._count._all])
   ) as Partial<Record<ItemType, number>>;
 
-  const inboxCount = counts.IDEA ?? 0;
+  const latest = Object.fromEntries(
+    grouped
+      .filter((row) => row._max.updatedAt)
+      .map((row) => [row.type, row._max.updatedAt as Date])
+  ) as Partial<Record<ItemType, Date>>;
+
   const totalCount = grouped.reduce((sum, row) => sum + row._count._all, 0);
+  const inboxCount = counts.IDEA ?? 0;
+
+  function metaFor(type: ItemType, count: number): string {
+    const last = latest[type];
+
+    switch (type) {
+      case ItemType.IDEA:
+        if (newIdeas > 0) {
+          return fill(copy.brain.meta.newCount, { n: newIdeas });
+        }
+        return fill(copy.brain.meta.unclassified, { n: count });
+      case ItemType.NOTE:
+        return last
+          ? fill(copy.brain.meta.lastFeminine, {
+              when: formatRelativeShort(last),
+            })
+          : copy.brain.meta.empty;
+      case ItemType.TASK:
+        return fill(copy.brain.meta.pending, { n: pendingTasks });
+      case ItemType.PROJECT:
+        return fill(copy.brain.meta.active, { n: activeProjects });
+      case ItemType.LINK:
+        return last
+          ? fill(copy.brain.meta.lastMasculine, {
+              when: formatRelativeShort(last),
+            })
+          : copy.brain.meta.empty;
+      case ItemType.BOOK:
+        if (toReadBooks > 0) {
+          return fill(copy.brain.meta.toRead, { n: toReadBooks });
+        }
+        return last
+          ? fill(copy.brain.meta.lastMasculine, {
+              when: formatRelativeShort(last),
+            })
+          : copy.brain.meta.empty;
+      default:
+        return copy.brain.meta.empty;
+    }
+  }
+
+  const modules: BrainModule[] = [
+    {
+      key: "inbox",
+      type: ItemType.IDEA,
+      label: REGION_META.IDEA.label,
+      href: REGION_META.IDEA.href,
+      description: REGION_META.IDEA.description,
+      count: inboxCount,
+      meta: metaFor(ItemType.IDEA, inboxCount),
+      accent: "from-primary/35 to-accent/50",
+      layoutId: "region-inbox",
+      always: true,
+    },
+  ];
 
   const regionTypes: ItemType[] = [
     ItemType.NOTE,
@@ -42,18 +145,34 @@ export async function getBrainRegions(): Promise<{
     ItemType.BOOK,
   ];
 
-  const regions: BrainRegion[] = regionTypes
-    .filter((type) => (counts[type] ?? 0) > 0)
-    .map((type) => {
-      const meta = REGION_META[type];
-      return {
-        type,
-        label: meta.label,
-        href: meta.href,
-        description: meta.description,
-        count: counts[type] ?? 0,
-      };
+  for (const type of regionTypes) {
+    const count = counts[type] ?? 0;
+    if (count === 0) continue;
+    const region = REGION_META[type];
+    modules.push({
+      key: type,
+      type,
+      label: region.label,
+      href: region.href,
+      description: region.description,
+      count,
+      meta: metaFor(type, count),
+      accent: region.accent,
+      layoutId: `region-${type.toLowerCase()}`,
     });
+  }
 
-  return { regions, inboxCount, totalCount };
+  modules.push({
+    key: "search",
+    label: copy.brain.searchLabel,
+    href: "/search",
+    description: copy.brain.searchDescription,
+    count: totalCount,
+    meta: copy.brain.meta.search,
+    accent: "from-muted to-accent/40",
+    layoutId: "region-search",
+    always: true,
+  });
+
+  return { modules, totalCount };
 }

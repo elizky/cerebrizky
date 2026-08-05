@@ -2,11 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { motion } from "framer-motion";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { copy } from "@/lib/copy";
+import { cn } from "@/lib/utils";
 import { quickCapture } from "@/server/items";
 
 export function QuickCapture() {
@@ -32,22 +31,23 @@ export function QuickCapture() {
   }
 
   return (
-    <motion.form
-      onSubmit={onSubmit}
-      layout
-      className="flex w-full flex-col gap-2 sm:flex-row sm:items-center"
-    >
+    <form onSubmit={onSubmit} className="w-full">
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder={copy.shell.capturePlaceholder}
-        className="bg-popover"
+        placeholder={pending ? copy.shell.saving : copy.shell.capturePlaceholder}
         disabled={pending}
+        className={cn(
+          "h-9 rounded-md border-border/40 bg-transparent shadow-none",
+          "placeholder:text-muted-foreground/70",
+          "focus-visible:border-primary/50 focus-visible:ring-0 focus-visible:ring-offset-0",
+          pending && "opacity-70"
+        )}
+        aria-label={copy.shell.capturePlaceholder}
       />
-      <Button type="submit" disabled={pending || !title.trim()}>
-        {pending ? copy.shell.saving : copy.shell.capture}
-      </Button>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-    </motion.form>
+      {error ? (
+        <p className="mt-1 text-xs text-destructive">{error}</p>
+      ) : null}
+    </form>
   );
 }

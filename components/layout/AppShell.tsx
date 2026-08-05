@@ -1,42 +1,88 @@
-import Link from "next/link";
+"use client";
 
-import { signOut } from "@/auth";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+
+import {
+  AuroraBackground,
+  type AuroraBand,
+} from "@/components/brain/AuroraBackground";
+import {
+  MESH_TEMPLATES,
+  MeshBackground,
+} from "@/components/brain/MeshBackground";
 import { QuickCapture } from "@/components/capture/QuickCapture";
-import { Button } from "@/components/ui/button";
+import { UserMenu } from "@/components/layout/UserMenu";
+import type { BackgroundMode } from "@/lib/background";
 import { copy } from "@/lib/copy";
+import { cn } from "@/lib/utils";
+
+const BG_STORAGE_KEY = "cerebrizky.background-mode";
+
+function isBackgroundMode(value: string): value is BackgroundMode {
+  return value === "Aurora" || (MESH_TEMPLATES as readonly string[]).includes(value);
+}
 
 export function AppShell({
   children,
   userName,
+  auroraBands,
+  totalCount,
 }: {
   children: React.ReactNode;
   userName?: string | null;
+  auroraBands: AuroraBand[];
+  totalCount: number;
 }) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const [mode, setMode] = useState<BackgroundMode>("Aurora");
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(BG_STORAGE_KEY);
+    if (stored && isBackgroundMode(stored)) {
+      setMode(stored);
+    }
+  }, []);
+
+  function handleModeChange(next: BackgroundMode) {
+    setMode(next);
+    window.localStorage.setItem(BG_STORAGE_KEY, next);
+  }
+
   return (
-    <div className="min-h-screen bg-brain">
-      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 md:px-8">
-        <header className="mb-8 flex flex-col gap-4 border-b border-border pb-6">
-          <div className="flex items-center justify-between gap-4">
-            <Link href="/" className="text-brand">
-              {copy.app.name}
-            </Link>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <span className="hidden sm:inline">{userName}</span>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/login" });
-                }}
-              >
-                <Button type="submit" variant="ghost" size="sm">
-                  {copy.auth.signOut}
-                </Button>
-              </form>
+    <div className="relative flex min-h-dvh flex-col bg-[#222222]">
+      {mode === "Aurora" ? (
+        <AuroraBackground className="fixed inset-0 z-0" bands={auroraBands} />
+      ) : (
+        <MeshBackground className="fixed inset-0 z-0" meshStyle={mode} />
+      )}
+      <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col px-4 pt-4 md:px-8">
+        <header className="mb-4 flex shrink-0 items-center gap-3 md:gap-4">
+          {isHome ? (
+            <p className="hidden md:block min-w-0 max-w-sm text-sm text-muted-foreground lg:max-w-xl">
+              {totalCount === 0 ? copy.brain.empty : copy.brain.populated}
+            </p>
+          ) : null}
+          <div className="ml-auto flex w-full md:w-auto min-w-0 items-center gap-3 justify-between">
+            <div className="w-full shrink md:w-96">
+              <QuickCapture />
             </div>
+            <UserMenu
+              userName={userName}
+              backgroundMode={mode}
+              onBackgroundModeChange={handleModeChange}
+            />
           </div>
-          <QuickCapture />
         </header>
-        <main className="flex-1 pb-10">{children}</main>
+        <main
+          className={cn(
+            "relative z-10 min-h-0 flex-1",
+            isHome ? "flex flex-col pb-0" : "mx-auto w-full max-w-7xl pb-10"
+          )}
+        >
+          {children}
+        </main>
       </div>
     </div>
   );
