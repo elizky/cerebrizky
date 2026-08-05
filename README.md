@@ -1,27 +1,35 @@
 # Cerebrizky
 
-Personal second brain. Next.js 16, Tailwind 4, Prisma 7, Neon Postgres, Auth.js, shadcn.
+Segundo cerebro personal. MVP web.
 
-## Setup
-
-1. Copy `.env.example` → `.env.local`
-2. Neon: pooled → `DATABASE_URL`, direct (sin `-pooler`) → `DATABASE_URL_UNPOOLED`
-3. Optional Google OAuth → `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
-   - Redirect: `http://localhost:3000/api/auth/callback/google`
-4. Use npm scripts only (`npm run migrate:dev`), never bare `prisma migrate`
+## Correr
 
 ```bash
 npm install
-npm run migrate:dev
-npm run db:seed
+npm run migrate:dev   # usa .env.local via dotenv-cli
+npm run db:seed       # opcional: usuario + datos demo
 npm run dev
 ```
 
 Seed: `izky@cerebrizky.local` / `cerebrizky`
 
-## Stack
+Env: `DATABASE_URL` (pooler), `DATABASE_URL_UNPOOLED` (direct), `AUTH_SECRET`. Google OAuth opcional.
 
-- App Router + Server Actions
-- Unified `Item` model (`IDEA | NOTE | TASK | LINK | BOOK | PROJECT`)
-- Brain home with dynamic region cards
-- Quick Capture → Inbox
+## Qué se puede hacer hoy
+
+- Login / register (credentials; Google si hay env)
+- Home cerebro: cards solo de regiones con contenido + Inbox + Search
+- Quick Capture → crea `IDEA` en Inbox (`source=WEB`)
+- CRUD de items: `IDEA`, `NOTE`, `TASK`, `LINK`, `BOOK`, `PROJECT`
+- Asignar proyecto, status, archivar / restaurar / borrar
+- Tags (crear, asignar, quitar)
+- Relaciones item ↔ item
+- Vista de proyecto con hijos agrupados por tipo
+- Búsqueda por título / contenido / URL
+
+## No está (fase 2)
+
+- ESP32 / `POST /api/ingest`
+- IA para clasificar type
+- Import desde bitacorizky / gastizky
+- Grafo, adjuntos, backlinks automáticos
