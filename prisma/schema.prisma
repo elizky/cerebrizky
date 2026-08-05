@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ItemType {
+  IDEA
+  NOTE
+  TASK
+  LINK
+  BOOK
+  PROJECT
+}
+
+enum ItemSource {
+  WEB
+  API
+  DEVICE
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  items         Item[]
+  tags          Tag[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @id
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Item {
+  id         String     @id @default(cuid())
+  userId     String
+  type       ItemType
+  source     ItemSource @default(WEB)
+  title      String
+  content    String?
+  url        String?
+  status     String
+  dueAt      DateTime?
+  projectId  String?
+  metadata   Json?
+  archivedAt DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project       Item?          @relation("ProjectChildren", fields: [projectId], references: [id], onDelete: SetNull)
+  children      Item[]         @relation("ProjectChildren")
+  tags          ItemTag[]
+  relationsFrom ItemRelation[] @relation("RelationSource")
+  relationsTo   ItemRelation[] @relation("RelationTarget")
+
+  @@index([userId, type])
+  @@index([userId, archivedAt])
+  @@index([projectId])
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  slug      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     ItemTag[]
+
+  @@unique([userId, slug])
+  @@index([userId])
+}
+
+model ItemTag {
+  itemId String
+  tagId  String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, tagId])
+}
+
+model ItemRelation {
+  id        String   @id @default(cuid())
+  sourceId  String
+  targetId  String
+  createdAt DateTime @default(now())
+  source    Item     @relation("RelationSource", fields: [sourceId], references: [id], onDelete: Cascade)
+  target    Item     @relation("RelationTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, targetId])
+  @@index([sourceId])
+  @@index([targetId])
+}
