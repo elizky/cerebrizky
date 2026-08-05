@@ -1,38 +1,36 @@
-"use client";
+'use client';
 
-import { ItemType } from "@prisma/client";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { ItemType } from '@prisma/client';
+import { Archive, ArchiveRestore, Link2, Save, Trash2, X } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMemo, useState, useTransition } from 'react';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { TagCombobox } from '@/components/items/TagCombobox';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { copy, statusLabel } from "@/lib/copy";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { copy, statusLabel } from '@/lib/copy';
+import { cn } from '@/lib/utils';
 import {
   DEFAULT_STATUS,
   hasWorkflow,
   isValidStatus,
   REGION_META,
   STATUS_OPTIONS,
-} from "@/lib/validations/item";
-import {
-  archiveItem,
-  deleteItem,
-  restoreItem,
-  updateItem,
-} from "@/server/items";
-import { createRelation, deleteRelation } from "@/server/relations";
-import { assignTag, createTag, removeTag } from "@/server/tags";
+} from '@/lib/validations/item';
+import { archiveItem, deleteItem, restoreItem, updateItem } from '@/server/items';
+import { createRelation, deleteRelation } from '@/server/relations';
+import { assignTag, createTag, removeTag } from '@/server/tags';
 
 type TagOption = { id: string; name: string };
 type ProjectOption = { id: string; title: string };
@@ -66,41 +64,55 @@ type ItemDetailFormProps = {
   relatableItems: Relatable[];
 };
 
-export function ItemDetailForm({
-  item,
-  tags,
-  projects,
-  relatableItems,
-}: ItemDetailFormProps) {
+export function ItemDetailForm({ item, tags, projects, relatableItems }: ItemDetailFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [title, setTitle] = useState(item.title);
   const [type, setType] = useState(item.type);
   const [status, setStatus] = useState(
-    isValidStatus(item.type, item.status)
-      ? item.status
-      : DEFAULT_STATUS[item.type]
+    isValidStatus(item.type, item.status) ? item.status : DEFAULT_STATUS[item.type],
   );
-  const [content, setContent] = useState(item.content ?? "");
-  const [url, setUrl] = useState(item.url ?? "");
-  const [projectId, setProjectId] = useState(item.projectId ?? "none");
+  const [content, setContent] = useState(item.content ?? '');
+  const [url, setUrl] = useState(item.url ?? '');
+  const [projectId, setProjectId] = useState(item.projectId ?? 'none');
   const [author, setAuthor] = useState(
-    typeof item.metadata === "object" &&
+    typeof item.metadata === 'object' &&
       item.metadata &&
-      "author" in item.metadata &&
-      typeof (item.metadata as { author?: unknown }).author === "string"
+      'author' in item.metadata &&
+      typeof (item.metadata as { author?: unknown }).author === 'string'
       ? (item.metadata as { author: string }).author
-      : ""
+      : '',
   );
-  const [newTag, setNewTag] = useState("");
-  const [tagId, setTagId] = useState("none");
-  const [targetId, setTargetId] = useState("none");
+  const [targetId, setTargetId] = useState('none');
   const [error, setError] = useState<string | null>(null);
 
   const assignedTagIds = useMemo(
     () => new Set(item.tags.map((entry) => entry.tag.id)),
-    [item.tags]
+    [item.tags],
   );
+
+  const availableTags = tags.filter((tag) => !assignedTagIds.has(tag.id));
+  const showStatus = hasWorkflow(type);
+  const showProject = type !== ItemType.PROJECT;
+  const showUrl = type === ItemType.LINK;
+  const showAuthor = type === ItemType.BOOK;
+  const metaCols = 1 + (showStatus ? 1 : 0) + (showProject ? 1 : 0);
+  const relations = [
+    ...item.relationsFrom.map((relation) => ({
+      id: relation.id,
+      href: `/items/${relation.target.id}`,
+      label: relation.target.title,
+      typeLabel: REGION_META[relation.target.type].label,
+      direction: '→' as const,
+    })),
+    ...item.relationsTo.map((relation) => ({
+      id: relation.id,
+      href: `/items/${relation.source.id}`,
+      label: relation.source.title,
+      typeLabel: REGION_META[relation.source.type].label,
+      direction: '←' as const,
+    })),
+  ];
 
   function run(action: () => Promise<unknown>) {
     startTransition(async () => {
@@ -115,9 +127,10 @@ export function ItemDetailForm({
   }
 
   return (
-    <div className="space-y-8">
+    <div className='space-y-6'>
       <form
-        className="space-y-4"
+        id='item-edit-form'
+        className='space-y-4'
         onSubmit={(event) => {
           event.preventDefault();
           run(async () => {
@@ -128,15 +141,52 @@ export function ItemDetailForm({
               status: hasWorkflow(type) ? status : DEFAULT_STATUS[type],
               content,
               url: url || null,
-              projectId: projectId === "none" ? null : projectId,
+              projectId: projectId === 'none' ? null : projectId,
               metadata: type === ItemType.BOOK ? { author } : null,
             });
             router.push(`/items/${item.id}`);
           });
         }}
       >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
+        <div className='-mt-2 mb-1 flex flex-wrap items-center gap-2'>
+          <Badge variant='secondary'>{REGION_META[type].label}</Badge>
+          {item.tags.map(({ tag }) => (
+            <button
+              key={tag.id}
+              type='button'
+              disabled={pending}
+              aria-label={`${copy.relations.remove} #${tag.name}`}
+              title={`${copy.relations.remove} #${tag.name}`}
+              className='cursor-pointer disabled:opacity-50'
+              onClick={() => run(() => removeTag({ itemId: item.id, tagId: tag.id }))}
+            >
+              <Badge variant='outline' className='gap-1 pr-1.5'>
+                #{tag.name}
+                <X className='size-3' />
+              </Badge>
+            </button>
+          ))}
+        </div>
+
+        <div className='space-y-2'>
+          <Label htmlFor='edit-title'>{copy.items.title}</Label>
+          <Input
+            id='edit-title'
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+
+        <div
+          className={cn(
+            'grid gap-4',
+            metaCols === 1 && 'grid-cols-1',
+            metaCols === 2 && 'sm:grid-cols-2',
+            metaCols >= 3 && 'sm:grid-cols-3',
+          )}
+        >
+          <div className='space-y-2'>
             <Label>{copy.items.type}</Label>
             <Select
               value={type}
@@ -158,8 +208,9 @@ export function ItemDetailForm({
               </SelectContent>
             </Select>
           </div>
-          {hasWorkflow(type) ? (
-            <div className="space-y-2">
+
+          {showStatus ? (
+            <div className='space-y-2'>
               <Label>{copy.items.status}</Label>
               <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger>
@@ -175,238 +226,202 @@ export function ItemDetailForm({
               </Select>
             </div>
           ) : null}
+
+          {showProject ? (
+            <div className='space-y-2'>
+              <Label>{copy.items.project}</Label>
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={copy.items.none} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='none'>{copy.items.none}</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
         </div>
 
-        <div className="space-y-2">
-          <Label>{copy.items.title}</Label>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-        </div>
-
-        <div className="space-y-2">
-          <Label>{copy.items.url}</Label>
-          <Input value={url} onChange={(e) => setUrl(e.target.value)} />
-        </div>
-
-        {type === ItemType.BOOK ? (
-          <div className="space-y-2">
-            <Label>{copy.items.author}</Label>
-            <Input value={author} onChange={(e) => setAuthor(e.target.value)} />
+        {showUrl || showAuthor ? (
+          <div className={cn('grid gap-4', showUrl && showAuthor && 'sm:grid-cols-2')}>
+            {showUrl ? (
+              <div className='space-y-2'>
+                <Label htmlFor='edit-url'>{copy.items.url}</Label>
+                <Input
+                  id='edit-url'
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  type='url'
+                />
+              </div>
+            ) : null}
+            {showAuthor ? (
+              <div className='space-y-2'>
+                <Label htmlFor='edit-author'>{copy.items.author}</Label>
+                <Input
+                  id='edit-author'
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                />
+              </div>
+            ) : null}
           </div>
         ) : null}
 
-        {type !== ItemType.PROJECT ? (
-          <div className="space-y-2">
-            <Label>{copy.items.project}</Label>
-            <Select value={projectId} onValueChange={setProjectId}>
-              <SelectTrigger>
-                <SelectValue placeholder={copy.items.none} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{copy.items.none}</SelectItem>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.title}
-                  </SelectItem>
+        <div className='grid gap-4 sm:grid-cols-2'>
+          <div className='space-y-2'>
+            <Label>{copy.tags.title}</Label>
+            <TagCombobox
+              options={availableTags}
+              disabled={pending}
+              onSelect={(tag) => run(() => assignTag({ itemId: item.id, tagId: tag.id }))}
+              onCreate={(name) =>
+                run(async () => {
+                  const tag = await createTag({ name });
+                  await assignTag({ itemId: item.id, tagId: tag.id });
+                })
+              }
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <Label>{copy.relations.title}</Label>
+            {relations.length > 0 ? (
+              <ul className='space-y-1'>
+                {relations.map((relation) => (
+                  <li
+                    key={relation.id}
+                    className='flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1.5 text-sm'
+                  >
+                    <Link href={relation.href} className='min-w-0 flex-1 truncate hover:underline'>
+                      <span className='text-muted-foreground'>{relation.direction} </span>
+                      {relation.label}
+                    </Link>
+                    <Button
+                      type='button'
+                      size='icon'
+                      variant='ghost'
+                      disabled={pending}
+                      aria-label={copy.relations.remove}
+                      title={copy.relations.remove}
+                      className='h-8 w-8'
+                      onClick={() => run(() => deleteRelation(relation.id))}
+                    >
+                      <X className='h-4 w-4' />
+                    </Button>
+                  </li>
                 ))}
-              </SelectContent>
-            </Select>
+              </ul>
+            ) : null}
+            <div className='flex items-center gap-2'>
+              <Select value={targetId} onValueChange={setTargetId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={copy.relations.selectItem} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='none'>{copy.relations.selectItem}</SelectItem>
+                  {relatableItems
+                    .filter((candidate) => candidate.id !== item.id)
+                    .map((candidate) => (
+                      <SelectItem key={candidate.id} value={candidate.id}>
+                        {candidate.title} ({REGION_META[candidate.type].label})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type='button'
+                size='icon'
+                variant='outline'
+                disabled={pending || targetId === 'none'}
+                aria-label={copy.relations.link}
+                title={copy.relations.link}
+                onClick={() =>
+                  run(async () => {
+                    await createRelation({ sourceId: item.id, targetId });
+                    setTargetId('none');
+                  })
+                }
+              >
+                <Link2 className='h-4 w-4' />
+              </Button>
+            </div>
           </div>
-        ) : null}
+        </div>
 
-        <div className="space-y-2">
-          <Label>{copy.items.content}</Label>
+        <div className='space-y-2'>
+          <Label htmlFor='edit-content'>{copy.items.content}</Label>
           <Textarea
+            id='edit-content'
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            rows={10}
+            rows={8}
           />
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" disabled={pending}>
-            {copy.items.save}
-          </Button>
-          {item.archivedAt ? (
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={pending}
-              onClick={() => run(() => restoreItem(item.id))}
-            >
-              {copy.items.restore}
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={pending}
-              onClick={() => run(() => archiveItem(item.id))}
-            >
-              {copy.items.archive}
-            </Button>
-          )}
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={pending}
-            onClick={() =>
-              run(async () => {
-                await deleteItem(item.id);
-                router.push("/");
-              })
-            }
-          >
-            {copy.items.delete}
-          </Button>
         </div>
       </form>
 
-      <section className="space-y-3">
-        <h2>{copy.tags.title}</h2>
-        <div className="flex flex-wrap gap-2">
-          {item.tags.map(({ tag }) => (
-            <button
-              key={tag.id}
-              type="button"
-              className="disabled:opacity-50"
+      {error ? <p className='text-sm text-destructive'>{error}</p> : null}
+
+      <div className='flex items-center justify-between border-t border-border pt-4'>
+        <div className='flex items-center gap-2'>
+          {item.archivedAt ? (
+            <Button
+              type='button'
+              size='icon'
+              variant='secondary'
               disabled={pending}
-              onClick={() =>
-                run(() => removeTag({ itemId: item.id, tagId: tag.id }))
-              }
+              aria-label={copy.items.restore}
+              title={copy.items.restore}
+              onClick={() => run(() => restoreItem(item.id))}
             >
-              <Badge variant="secondary">#{tag.name} ×</Badge>
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Select value={tagId} onValueChange={setTagId}>
-            <SelectTrigger className="sm:max-w-xs">
-              <SelectValue placeholder={copy.tags.assignExisting} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">{copy.tags.selectTag}</SelectItem>
-              {tags
-                .filter((tag) => !assignedTagIds.has(tag.id))
-                .map((tag) => (
-                  <SelectItem key={tag.id} value={tag.id}>
-                    {tag.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+              <ArchiveRestore className='h-4 w-4' />
+            </Button>
+          ) : (
+            <Button
+              type='button'
+              size='icon'
+              variant='secondary'
+              disabled={pending}
+              aria-label={copy.items.archive}
+              title={copy.items.archive}
+              onClick={() => run(() => archiveItem(item.id))}
+            >
+              <Archive className='h-4 w-4' />
+            </Button>
+          )}
           <Button
-            type="button"
-            variant="outline"
-            disabled={pending || tagId === "none"}
-            onClick={() => run(() => assignTag({ itemId: item.id, tagId }))}
-          >
-            {copy.tags.assign}
-          </Button>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Input
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
-            placeholder={copy.tags.newTag}
-            className="sm:max-w-xs"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            disabled={pending || !newTag.trim()}
+            type='button'
+            size='icon'
+            variant='destructive'
+            disabled={pending}
+            aria-label={copy.items.delete}
+            title={copy.items.delete}
             onClick={() =>
               run(async () => {
-                const tag = await createTag({ name: newTag.trim() });
-                await assignTag({ itemId: item.id, tagId: tag.id });
-                setNewTag("");
+                await deleteItem(item.id);
+                router.push('/');
               })
             }
           >
-            {copy.tags.createAndAssign}
+            <Trash2 className='h-4 w-4' />
           </Button>
         </div>
-      </section>
-
-      <section className="space-y-3">
-        <h2>{copy.relations.title}</h2>
-        <ul className="space-y-2">
-          {item.relationsFrom.map((relation) => (
-            <li
-              key={relation.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm"
-            >
-              <Link
-                href={`/items/${relation.target.id}`}
-                className="hover:underline"
-              >
-                → {relation.target.title} (
-                {REGION_META[relation.target.type].label})
-              </Link>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                disabled={pending}
-                onClick={() => run(() => deleteRelation(relation.id))}
-              >
-                {copy.relations.remove}
-              </Button>
-            </li>
-          ))}
-          {item.relationsTo.map((relation) => (
-            <li
-              key={relation.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm"
-            >
-              <Link
-                href={`/items/${relation.source.id}`}
-                className="hover:underline"
-              >
-                ← {relation.source.title} (
-                {REGION_META[relation.source.type].label})
-              </Link>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                disabled={pending}
-                onClick={() => run(() => deleteRelation(relation.id))}
-              >
-                {copy.relations.remove}
-              </Button>
-            </li>
-          ))}
-        </ul>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Select value={targetId} onValueChange={setTargetId}>
-            <SelectTrigger>
-              <SelectValue placeholder={copy.relations.relateTo} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">{copy.relations.selectItem}</SelectItem>
-              {relatableItems
-                .filter((candidate) => candidate.id !== item.id)
-                .map((candidate) => (
-                  <SelectItem key={candidate.id} value={candidate.id}>
-                    {candidate.title} ({REGION_META[candidate.type].label})
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={pending || targetId === "none"}
-            onClick={() =>
-              run(() => createRelation({ sourceId: item.id, targetId }))
-            }
-          >
-            {copy.relations.link}
-          </Button>
-        </div>
-      </section>
-
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        <Button
+          type='submit'
+          form='item-edit-form'
+          size='icon'
+          disabled={pending}
+          aria-label={copy.items.save}
+          title={copy.items.save}
+        >
+          <Save className='h-4 w-4' />
+        </Button>
+      </div>
     </div>
   );
 }

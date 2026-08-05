@@ -1,10 +1,10 @@
-import { ItemType } from "@prisma/client";
+import { ItemType } from '@prisma/client';
 
-import { RegionShell } from "@/components/brain/RegionShell";
-import { CreateItemTrigger } from "@/components/items/CreateItemTrigger";
-import { ItemList } from "@/components/items/ItemList";
-import { copy } from "@/lib/copy";
-import { listItems } from "@/server/items";
+import { RegionShell } from '@/components/brain/RegionShell';
+import { CreateItemTrigger } from '@/components/items/CreateItemTrigger';
+import { ItemList } from '@/components/items/ItemList';
+import { copy } from '@/lib/copy';
+import { listItems } from '@/server/items';
 
 export default async function NotesPage() {
   const [items, projects] = await Promise.all([
@@ -14,7 +14,7 @@ export default async function NotesPage() {
 
   return (
     <RegionShell
-      layoutId="region-note"
+      layoutId='region-note'
       title={copy.regions.NOTE.label}
       description={copy.regions.NOTE.pageDescription}
       actions={

@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 :root {
   --background: #222222;
@@ -25,14 +25,10 @@
   --chart-2: #9c87f5;
   --chart-3: #1a1915;
   --radius: 0.25rem;
-  --shadow-sm:
-    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow:
-    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow-md:
-    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-  --shadow-lg:
-    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
 }
 
 @theme inline {
@@ -83,6 +79,14 @@
     @apply bg-background font-sans text-foreground antialiased;
   }
 
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='combobox']:not([aria-disabled='true']),
+  [role='menuitem']:not([aria-disabled='true']),
+  [role='option']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
   h1 {
     @apply font-serif text-4xl tracking-tight text-card-foreground;
   }
@@ -99,9 +103,21 @@
 @utility bg-brain {
   background-color: var(--background);
   background-image:
-    radial-gradient(circle at 12% 18%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 34%),
-    radial-gradient(circle at 88% 8%, color-mix(in oklab, var(--ring) 14%, transparent), transparent 28%),
-    radial-gradient(circle at 50% 90%, color-mix(in oklab, var(--accent) 70%, transparent), transparent 42%);
+    radial-gradient(
+      circle at 12% 18%,
+      color-mix(in oklab, var(--primary) 18%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 88% 8%,
+      color-mix(in oklab, var(--ring) 14%, transparent),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 50% 90%,
+      color-mix(in oklab, var(--accent) 70%, transparent),
+      transparent 42%
+    );
 }
 
 @utility text-eyebrow {

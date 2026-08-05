@@ -1,16 +1,18 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 
-import { copy } from "@/lib/copy";
-import { cn } from "@/lib/utils";
+import { StatusDot } from '@/components/items/StatusDot';
+import { copy } from '@/lib/copy';
+import { cn } from '@/lib/utils';
 
 type RegionShellProps = {
   layoutId: string;
   title: string;
   description?: string;
+  status?: string;
   children: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
@@ -20,6 +22,7 @@ export function RegionShell({
   layoutId,
   title,
   description,
+  status,
   children,
   actions,
   className,
@@ -29,27 +32,28 @@ export function RegionShell({
       layoutId={layoutId}
       initial={{ opacity: 0.85, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: "spring", stiffness: 260, damping: 28 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 28 }}
       className={cn(
-        "rounded-lg border border-border bg-card/80 p-6 shadow-lg backdrop-blur-md md:p-8",
-        className
+        'rounded-lg border border-border bg-card/80 p-6 shadow-lg backdrop-blur-md md:p-8',
+        className,
       )}
     >
-      <div className="mb-6 space-y-2">
+      <div className='mb-6 space-y-2'>
         <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
+          href='/'
+          className='inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground'
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className='h-4 w-4' />
           {copy.brain.back}
         </Link>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="min-w-0 flex-1">{title}</h1>
-          {actions ? <div className="shrink-0">{actions}</div> : null}
+        <div className='flex flex-wrap items-center justify-between gap-3'>
+          <div className='flex min-w-0 flex-1 items-center gap-3'>
+            <h1 className='min-w-0 truncate'>{title}</h1>
+            {status ? <StatusDot status={status} /> : null}
+          </div>
+          {actions ? <div className='shrink-0'>{actions}</div> : null}
         </div>
-        {description ? (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        ) : null}
+        {description ? <p className='text-sm text-muted-foreground'>{description}</p> : null}
       </div>
       {children}
     </motion.section>

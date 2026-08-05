@@ -1,11 +1,11 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath } from 'next/cache';
 
-import { copy } from "@/lib/copy";
-import { db } from "@/lib/db";
-import { relationSchema } from "@/lib/validations/item";
-import { requireUserId } from "@/server/auth";
+import { copy } from '@/lib/copy';
+import { db } from '@/lib/db';
+import { relationSchema } from '@/lib/validations/item';
+import { requireUserId } from '@/server/auth';
 
 export async function createRelation(input: unknown) {
   const userId = await requireUserId();
@@ -49,10 +49,7 @@ export async function deleteRelation(id: string) {
   const relation = await db.itemRelation.findFirst({
     where: {
       id,
-      OR: [
-        { source: { userId } },
-        { target: { userId } },
-      ],
+      OR: [{ source: { userId } }, { target: { userId } }],
     },
   });
 

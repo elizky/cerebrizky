@@ -1,28 +1,28 @@
-"use server";
+'use server';
 
-import bcrypt from "bcryptjs";
-import { AuthError } from "next-auth";
+import bcrypt from 'bcryptjs';
+import { AuthError } from 'next-auth';
 
-import { signIn, signOut } from "@/auth";
-import { copy } from "@/lib/copy";
-import { db } from "@/lib/db";
-import { loginSchema, registerSchema } from "@/lib/validations/item";
+import { signIn, signOut } from '@/auth';
+import { copy } from '@/lib/copy';
+import { db } from '@/lib/db';
+import { loginSchema, registerSchema } from '@/lib/validations/item';
 
 export async function signOutAction() {
-  await signOut({ redirectTo: "/login" });
+  await signOut({ redirectTo: '/login' });
 }
 export async function googleSignInAction() {
-  await signIn("google", { redirectTo: "/" });
+  await signIn('google', { redirectTo: '/' });
 }
 
 export async function loginAction(input: unknown) {
   const data = loginSchema.parse(input);
 
   try {
-    await signIn("credentials", {
+    await signIn('credentials', {
       email: data.email,
       password: data.password,
-      redirectTo: "/",
+      redirectTo: '/',
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -51,10 +51,10 @@ export async function registerAction(input: unknown) {
   });
 
   try {
-    await signIn("credentials", {
+    await signIn('credentials', {
       email: data.email,
       password: data.password,
-      redirectTo: "/",
+      redirectTo: '/',
     });
   } catch (error) {
     if (error instanceof AuthError) {

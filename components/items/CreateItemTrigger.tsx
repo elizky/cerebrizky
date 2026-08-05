@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { ItemType } from "@prisma/client";
-import { useState } from "react";
+import { ItemType } from '@prisma/client';
+import { useState } from 'react';
 
-import { CreateItemForm } from "@/components/items/CreateItemForm";
-import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
-import { copy } from "@/lib/copy";
+import { CreateItemForm } from '@/components/items/CreateItemForm';
+import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
+import { copy } from '@/lib/copy';
 
 type ProjectOption = { id: string; title: string };
 
@@ -25,13 +25,14 @@ export function CreateItemTrigger({
 
   return (
     <>
-      <Button type="button" size="sm" onClick={() => setOpen(true)}>
+      <Button type='button' size='sm' onClick={() => setOpen(true)}>
         {copy.items.create}
       </Button>
       <Dialog
         open={open}
         onOpenChange={setOpen}
         title={copy.items.createTitle}
+        className='max-w-md p-4'
       >
         <CreateItemForm
           defaultType={defaultType}

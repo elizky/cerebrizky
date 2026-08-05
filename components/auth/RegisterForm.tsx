@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useState, useTransition } from "react";
+import Link from 'next/link';
+import { useState, useTransition } from 'react';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { copy } from "@/lib/copy";
-import { registerAction } from "@/server/auth-actions";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { copy } from '@/lib/copy';
+import { registerAction } from '@/server/auth-actions';
 
 export function RegisterForm() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   return (
     <form
-      className="space-y-4"
+      className='space-y-4'
       onSubmit={(event) => {
         event.preventDefault();
         startTransition(async () => {
@@ -27,43 +27,38 @@ export function RegisterForm() {
         });
       }}
     >
-      <div className="space-y-2">
-        <Label htmlFor="name">{copy.auth.name}</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+      <div className='space-y-2'>
+        <Label htmlFor='name'>{copy.auth.name}</Label>
+        <Input id='name' value={name} onChange={(e) => setName(e.target.value)} required />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="email">{copy.auth.email}</Label>
+      <div className='space-y-2'>
+        <Label htmlFor='email'>{copy.auth.email}</Label>
         <Input
-          id="email"
-          type="email"
+          id='email'
+          type='email'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">{copy.auth.password}</Label>
+      <div className='space-y-2'>
+        <Label htmlFor='password'>{copy.auth.password}</Label>
         <Input
-          id="password"
-          type="password"
+          id='password'
+          type='password'
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           minLength={6}
           required
         />
       </div>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <Button type="submit" className="w-full" disabled={pending}>
+      {error ? <p className='text-sm text-destructive'>{error}</p> : null}
+      <Button type='submit' className='w-full' disabled={pending}>
         {pending ? copy.auth.creatingAccount : copy.auth.createAccount}
       </Button>
-      <p className="text-center text-sm text-muted-foreground">
-        {copy.auth.hasAccount}{" "}
-        <Link href="/login" className="underline">
+      <p className='text-center text-sm text-muted-foreground'>
+        {copy.auth.hasAccount}{' '}
+        <Link href='/login' className='underline'>
           {copy.auth.signIn}
         </Link>
       </p>

@@ -1,24 +1,24 @@
-import type { Metadata } from "next";
-import { DM_Sans, Fira_Code, Fraunces } from "next/font/google";
+import type { Metadata } from 'next';
+import { DM_Sans, Fira_Code, Fraunces } from 'next/font/google';
 
-import { MotionProvider } from "@/components/layout/MotionProvider";
-import { copy } from "@/lib/copy";
+import { MotionProvider } from '@/components/layout/MotionProvider';
+import { copy } from '@/lib/copy';
 
-import "./globals.css";
+import './globals.css';
 
 const fontSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
+  subsets: ['latin'],
+  variable: '--font-sans',
 });
 
 const fontSerif = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-serif",
+  subsets: ['latin'],
+  variable: '--font-serif',
 });
 
 const fontMono = Fira_Code({
-  subsets: ["latin"],
-  variable: "--font-mono",
+  subsets: ['latin'],
+  variable: '--font-mono',
 });
 
 export const metadata: Metadata = {
@@ -32,10 +32,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body
-        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable}`}
-      >
+    <html lang='es'>
+      <body className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable}`}>
         <MotionProvider>{children}</MotionProvider>
       </body>
     </html>

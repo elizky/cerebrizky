@@ -1,18 +1,18 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath } from 'next/cache';
 
-import { copy } from "@/lib/copy";
-import { db } from "@/lib/db";
-import { slugify } from "@/lib/utils";
-import { assignTagSchema, tagSchema } from "@/lib/validations/item";
-import { requireUserId } from "@/server/auth";
+import { copy } from '@/lib/copy';
+import { db } from '@/lib/db';
+import { slugify } from '@/lib/utils';
+import { assignTagSchema, tagSchema } from '@/lib/validations/item';
+import { requireUserId } from '@/server/auth';
 
 export async function listTags() {
   const userId = await requireUserId();
   return db.tag.findMany({
     where: { userId },
-    orderBy: { name: "asc" },
+    orderBy: { name: 'asc' },
   });
 }
 
@@ -27,7 +27,7 @@ export async function createTag(input: unknown) {
     create: { userId, name: data.name, slug },
   });
 
-  revalidatePath("/");
+  revalidatePath('/');
   return tag;
 }
 

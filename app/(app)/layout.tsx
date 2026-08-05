@@ -1,16 +1,12 @@
-import { auth } from "@/auth";
-import { AppShell } from "@/components/layout/AppShell";
-import { getBrainOverview } from "@/server/brain";
+import { auth } from '@/auth';
+import { AppShell } from '@/components/layout/AppShell';
+import { getBrainOverview } from '@/server/brain';
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   const { modules, totalCount } = await getBrainOverview();
   const auroraBands = modules
-    .filter((module) => module.key !== "search")
+    .filter((module) => module.key !== 'search')
     .map((module) => ({
       key: module.key,
       weight: module.count,

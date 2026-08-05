@@ -1,14 +1,16 @@
-import { ItemType } from "@prisma/client";
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import { ItemType } from '@prisma/client';
+import { X } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { RegionShell } from "@/components/brain/RegionShell";
-import { ItemDetailForm } from "@/components/items/ItemDetailForm";
-import { ItemDetailView } from "@/components/items/ItemDetailView";
-import { Button } from "@/components/ui/button";
-import { copy } from "@/lib/copy";
-import { getItem, listItems } from "@/server/items";
-import { listTags } from "@/server/tags";
+import { RegionShell } from '@/components/brain/RegionShell';
+import { ItemDetailForm } from '@/components/items/ItemDetailForm';
+import { ItemDetailView } from '@/components/items/ItemDetailView';
+import { Button } from '@/components/ui/button';
+import { copy } from '@/lib/copy';
+import { hasWorkflow } from '@/lib/validations/item';
+import { getItem, listItems } from '@/server/items';
+import { listTags } from '@/server/tags';
 
 export default async function ItemDetailPage({
   params,
@@ -19,7 +21,7 @@ export default async function ItemDetailPage({
 }) {
   const { id } = await params;
   const { edit } = await searchParams;
-  const isEditing = edit === "1";
+  const isEditing = edit === '1';
 
   const [item, tags, projects, allItems] = await Promise.all([
     getItem(id),
@@ -36,13 +38,25 @@ export default async function ItemDetailPage({
     <RegionShell
       layoutId={`item-${item.id}`}
       title={item.title}
+      status={hasWorkflow(item.type) ? item.status : undefined}
       actions={
         isEditing ? (
-          <Button asChild variant="ghost" size="sm">
-            <Link href={`/items/${item.id}`}>{copy.items.cancel}</Link>
+          <Button
+            asChild
+            size='icon'
+            variant='ghost'
+            className='h-10 w-10 text-muted-foreground hover:text-foreground'
+          >
+            <Link
+              href={`/items/${item.id}`}
+              aria-label={copy.items.cancel}
+              title={copy.items.cancel}
+            >
+              <X className='h-4 w-4' />
+            </Link>
           </Button>
         ) : (
-          <Button asChild size="sm">
+          <Button asChild size='sm'>
             <Link href={`/items/${item.id}?edit=1`}>{copy.items.edit}</Link>
           </Button>
         )

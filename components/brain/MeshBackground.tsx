@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 export const MESH_TEMPLATES = [
-  "Quantum Entanglement",
-  "Elastic Spiderweb",
-  "Constellation Curves",
-  "Living Origami",
-  "Magnetic Topography",
-  "Cybernetic Circuits",
+  'Quantum Entanglement',
+  'Elastic Spiderweb',
+  'Constellation Curves',
+  'Living Origami',
+  'Magnetic Topography',
+  'Cybernetic Circuits',
 ] as const;
 
 export type MeshTemplate = (typeof MESH_TEMPLATES)[number];
 
-export const DEFAULT_MESH_TEMPLATE: MeshTemplate = "Quantum Entanglement";
+export const DEFAULT_MESH_TEMPLATE: MeshTemplate = 'Quantum Entanglement';
 
 type Point = {
   x: number;
@@ -44,8 +44,8 @@ export function MeshBackground({
   meshStyle = DEFAULT_MESH_TEMPLATE,
   particleCount = 140,
   connectionDistance = 130,
-  meshColor = "#FACC14",
-  backgroundColor = "#222222",
+  meshColor = '#FACC14',
+  backgroundColor = '#222222',
   lineWidth = 1,
   nodeSize = 1.6,
   flowSpeed = 0.85,
@@ -62,7 +62,7 @@ export function MeshBackground({
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
     let animationId = 0;
@@ -102,8 +102,8 @@ export function MeshBackground({
       ctx!.fillRect(0, 0, width, height);
 
       const mouse = mouseRef.current;
-      ctx!.lineCap = "round";
-      ctx!.lineJoin = "round";
+      ctx!.lineCap = 'round';
+      ctx!.lineJoin = 'round';
 
       for (let i = 0; i < points.length; i++) {
         const p = points[i];
@@ -137,7 +137,7 @@ export function MeshBackground({
 
           const opacity = 1 - dist / connectionDistance;
 
-          if (meshStyle === "Elastic Spiderweb") {
+          if (meshStyle === 'Elastic Spiderweb') {
             let midX = (p1.x + p2.x) / 2;
             let midY = (p1.y + p2.y) / 2;
             const dxMid = mouse.x - midX;
@@ -155,7 +155,7 @@ export function MeshBackground({
             ctx!.moveTo(p1.x, p1.y);
             ctx!.quadraticCurveTo(midX, midY, p2.x, p2.y);
             ctx!.stroke();
-          } else if (meshStyle === "Constellation Curves") {
+          } else if (meshStyle === 'Constellation Curves') {
             ctx!.globalAlpha = opacity * 0.5;
             ctx!.strokeStyle = meshColor;
             ctx!.lineWidth = lineWidth * 1.5;
@@ -165,15 +165,13 @@ export function MeshBackground({
               (p1.x + p2.x) / 2 + Math.sin(p1.wanderOffset) * 30,
               (p1.y + p2.y) / 2 + Math.cos(p1.wanderOffset) * 30,
               p2.x,
-              p2.y
+              p2.y,
             );
             ctx!.stroke();
-          } else if (meshStyle === "Living Origami") {
+          } else if (meshStyle === 'Living Origami') {
             for (let k = j + 1; k < points.length; k++) {
               const p3 = points[k];
-              const dist3 = Math.sqrt(
-                (p1.x - p3.x) ** 2 + (p1.y - p3.y) ** 2
-              );
+              const dist3 = Math.sqrt((p1.x - p3.x) ** 2 + (p1.y - p3.y) ** 2);
               if (dist3 < connectionDistance) {
                 ctx!.beginPath();
                 ctx!.moveTo(p1.x, p1.y);
@@ -190,22 +188,17 @@ export function MeshBackground({
                 break;
               }
             }
-          } else if (meshStyle === "Magnetic Topography") {
+          } else if (meshStyle === 'Magnetic Topography') {
             if (Math.abs(dy) < 40) {
               ctx!.globalAlpha = opacity;
               ctx!.strokeStyle = meshColor;
               ctx!.lineWidth = lineWidth * 1.5;
               ctx!.beginPath();
               ctx!.moveTo(p1.x, p1.y);
-              ctx!.quadraticCurveTo(
-                (p1.x + p2.x) / 2,
-                (p1.y + p2.y) / 2 + 20,
-                p2.x,
-                p2.y
-              );
+              ctx!.quadraticCurveTo((p1.x + p2.x) / 2, (p1.y + p2.y) / 2 + 20, p2.x, p2.y);
               ctx!.stroke();
             }
-          } else if (meshStyle === "Cybernetic Circuits") {
+          } else if (meshStyle === 'Cybernetic Circuits') {
             ctx!.globalAlpha = opacity * 0.5;
             ctx!.strokeStyle = meshColor;
             ctx!.lineWidth = lineWidth * 1.2;
@@ -216,43 +209,27 @@ export function MeshBackground({
             ctx!.stroke();
           } else {
             // Quantum Entanglement
-            const wave =
-              Math.sin(time * 3 + p1.wanderOffset) * (dist * 0.2);
+            const wave = Math.sin(time * 3 + p1.wanderOffset) * (dist * 0.2);
             ctx!.globalAlpha = opacity * 0.4;
             ctx!.strokeStyle = meshColor;
             ctx!.lineWidth = lineWidth;
             ctx!.beginPath();
             ctx!.moveTo(p1.x, p1.y);
-            ctx!.quadraticCurveTo(
-              (p1.x + p2.x) / 2 + wave,
-              (p1.y + p2.y) / 2 - wave,
-              p2.x,
-              p2.y
-            );
+            ctx!.quadraticCurveTo((p1.x + p2.x) / 2 + wave, (p1.y + p2.y) / 2 - wave, p2.x, p2.y);
             ctx!.stroke();
             ctx!.beginPath();
             ctx!.moveTo(p1.x, p1.y);
-            ctx!.quadraticCurveTo(
-              (p1.x + p2.x) / 2 - wave,
-              (p1.y + p2.y) / 2 + wave,
-              p2.x,
-              p2.y
-            );
+            ctx!.quadraticCurveTo((p1.x + p2.x) / 2 - wave, (p1.y + p2.y) / 2 + wave, p2.x, p2.y);
             ctx!.stroke();
           }
         }
 
-        if (meshStyle !== "Living Origami" && nodeSize > 0) {
+        if (meshStyle !== 'Living Origami' && nodeSize > 0) {
           ctx!.globalAlpha = 0.8;
           ctx!.fillStyle = meshColor;
           ctx!.beginPath();
-          if (meshStyle === "Cybernetic Circuits") {
-            ctx!.rect(
-              p1.x - nodeSize,
-              p1.y - nodeSize,
-              nodeSize * 2,
-              nodeSize * 2
-            );
+          if (meshStyle === 'Cybernetic Circuits') {
+            ctx!.rect(p1.x - nodeSize, p1.y - nodeSize, nodeSize * 2, nodeSize * 2);
           } else {
             ctx!.arc(p1.x, p1.y, nodeSize, 0, Math.PI * 2);
           }
@@ -277,14 +254,14 @@ export function MeshBackground({
 
     const resizeObserver = new ResizeObserver(() => init());
     resizeObserver.observe(container);
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerleave", onPointerLeave);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerleave', onPointerLeave);
     init();
 
     return () => {
       resizeObserver.disconnect();
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerleave", onPointerLeave);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerleave', onPointerLeave);
       cancelAnimationFrame(animationId);
     };
   }, [
@@ -305,10 +282,10 @@ export function MeshBackground({
     <div
       ref={containerRef}
       aria-hidden
-      className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
+      className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}
       style={{ backgroundColor }}
     >
-      <canvas ref={canvasRef} className="block h-full w-full" />
+      <canvas ref={canvasRef} className='block h-full w-full' />
     </div>
   );
 }

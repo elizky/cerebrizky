@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { motion } from 'framer-motion';
+import { useMemo, useState } from 'react';
 
-import { RegionCard } from "@/components/brain/RegionCard";
-import { cn } from "@/lib/utils";
-import type { BrainModule } from "@/server/brain";
+import { RegionCard } from '@/components/brain/RegionCard';
+import { cn } from '@/lib/utils';
+import type { BrainModule } from '@/server/brain';
 
 type BrainHomeProps = {
   modules: BrainModule[];
@@ -34,18 +34,12 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function layoutModules(
-  modules: BrainModule[]
-): { module: BrainModule; slot: Slot }[] {
+function layoutModules(modules: BrainModule[]): { module: BrainModule; slot: Slot }[] {
   const n = modules.length;
   if (n === 0) return [];
 
   const angleStep = (Math.PI * 2) / n;
-  const baseRadius = clamp(
-    MIN_DIST / (2 * Math.sin(Math.PI / Math.max(n, 2))),
-    CORE_CLEAR + 2,
-    38
-  );
+  const baseRadius = clamp(MIN_DIST / (2 * Math.sin(Math.PI / Math.max(n, 2))), CORE_CLEAR + 2, 38);
 
   const placed: Slot[] = [];
 
@@ -106,9 +100,9 @@ export function BrainHome({ modules }: BrainHomeProps) {
   const slots = useMemo(() => layoutModules(modules), [modules]);
 
   return (
-    <div className="relative z-10 flex h-full min-h-0 flex-1 flex-col">
-      <div className="space-y-4 md:hidden">
-        <div className="grid gap-5 sm:grid-cols-2">
+    <div className='relative z-10 flex h-full min-h-0 flex-1 flex-col'>
+      <div className='space-y-4 md:hidden'>
+        <div className='grid gap-5 sm:grid-cols-2'>
           {modules.map((module, index) => (
             <motion.div
               key={module.key}
@@ -116,7 +110,7 @@ export function BrainHome({ modules }: BrainHomeProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 delay: index * 0.06,
-                type: "spring",
+                type: 'spring',
                 stiffness: 280,
               }}
             >
@@ -134,7 +128,7 @@ export function BrainHome({ modules }: BrainHomeProps) {
         </div>
       </div>
 
-      <div className="relative hidden min-h-0 flex-1 overflow-hidden md:block">
+      <div className='relative hidden min-h-0 flex-1 overflow-hidden md:block'>
         {slots.map(({ module, slot }, index) => {
           const focused = activeKey === module.key;
           const dimmed = activeKey !== null && !focused;
@@ -142,7 +136,7 @@ export function BrainHome({ modules }: BrainHomeProps) {
           return (
             <div
               key={module.key}
-              className="absolute z-10 w-[min(260px,20%)] -translate-x-1/2 -translate-y-1/2"
+              className='absolute z-10 w-[min(260px,20%)] -translate-x-1/2 -translate-y-1/2'
               style={{ left: `${slot.left}%`, top: `${slot.top}%` }}
             >
               <motion.div
@@ -153,7 +147,7 @@ export function BrainHome({ modules }: BrainHomeProps) {
                 }}
                 transition={{
                   delay: activeKey ? 0 : 0.15 + index * 0.05,
-                  type: "spring",
+                  type: 'spring',
                   stiffness: 280,
                   damping: 24,
                   opacity: { duration: 0.2 },
@@ -170,9 +164,8 @@ export function BrainHome({ modules }: BrainHomeProps) {
                   count={module.count}
                   accent={module.accent}
                   className={cn(
-                    "transition-[filter] duration-200",
-                    focused &&
-                      "drop-shadow-[0_0_18px_rgba(250,204,20,0.22)]"
+                    'transition-[filter] duration-200',
+                    focused && 'drop-shadow-[0_0_18px_rgba(250,204,20,0.22)]',
                   )}
                 />
               </motion.div>

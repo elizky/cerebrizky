@@ -1,12 +1,12 @@
-"use server";
+'use server';
 
-import { ItemType } from "@prisma/client";
+import { ItemType } from '@prisma/client';
 
-import { copy, fill } from "@/lib/copy";
-import { db } from "@/lib/db";
-import { formatRelativeShort } from "@/lib/relative-time";
-import { REGION_META } from "@/lib/validations/item";
-import { requireUserId } from "@/server/auth";
+import { copy, fill } from '@/lib/copy';
+import { db } from '@/lib/db';
+import { formatRelativeShort } from '@/lib/relative-time';
+import { REGION_META } from '@/lib/validations/item';
+import { requireUserId } from '@/server/auth';
 
 export type BrainModule = {
   key: string;
@@ -28,56 +28,55 @@ export async function getBrainOverview(): Promise<{
   const userId = await requireUserId();
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [grouped, pendingTasks, activeProjects, toReadBooks, newIdeas] =
-    await Promise.all([
-      db.item.groupBy({
-        by: ["type"],
-        where: { userId, archivedAt: null },
-        _count: { _all: true },
-        _max: { updatedAt: true },
-      }),
-      db.item.count({
-        where: {
-          userId,
-          archivedAt: null,
-          type: ItemType.TASK,
-          status: { in: ["todo", "doing"] },
-        },
-      }),
-      db.item.count({
-        where: {
-          userId,
-          archivedAt: null,
-          type: ItemType.PROJECT,
-          status: "active",
-        },
-      }),
-      db.item.count({
-        where: {
-          userId,
-          archivedAt: null,
-          type: ItemType.BOOK,
-          status: "to_read",
-        },
-      }),
-      db.item.count({
-        where: {
-          userId,
-          archivedAt: null,
-          type: ItemType.IDEA,
-          createdAt: { gte: weekAgo },
-        },
-      }),
-    ]);
+  const [grouped, pendingTasks, activeProjects, toReadBooks, newIdeas] = await Promise.all([
+    db.item.groupBy({
+      by: ['type'],
+      where: { userId, archivedAt: null },
+      _count: { _all: true },
+      _max: { updatedAt: true },
+    }),
+    db.item.count({
+      where: {
+        userId,
+        archivedAt: null,
+        type: ItemType.TASK,
+        status: { in: ['todo', 'doing'] },
+      },
+    }),
+    db.item.count({
+      where: {
+        userId,
+        archivedAt: null,
+        type: ItemType.PROJECT,
+        status: 'active',
+      },
+    }),
+    db.item.count({
+      where: {
+        userId,
+        archivedAt: null,
+        type: ItemType.BOOK,
+        status: 'to_read',
+      },
+    }),
+    db.item.count({
+      where: {
+        userId,
+        archivedAt: null,
+        type: ItemType.IDEA,
+        createdAt: { gte: weekAgo },
+      },
+    }),
+  ]);
 
-  const counts = Object.fromEntries(
-    grouped.map((row) => [row.type, row._count._all])
-  ) as Partial<Record<ItemType, number>>;
+  const counts = Object.fromEntries(grouped.map((row) => [row.type, row._count._all])) as Partial<
+    Record<ItemType, number>
+  >;
 
   const latest = Object.fromEntries(
     grouped
       .filter((row) => row._max.updatedAt)
-      .map((row) => [row.type, row._max.updatedAt as Date])
+      .map((row) => [row.type, row._max.updatedAt as Date]),
   ) as Partial<Record<ItemType, Date>>;
 
   const totalCount = grouped.reduce((sum, row) => sum + row._count._all, 0);
@@ -124,15 +123,15 @@ export async function getBrainOverview(): Promise<{
 
   const modules: BrainModule[] = [
     {
-      key: "inbox",
+      key: 'inbox',
       type: ItemType.IDEA,
       label: REGION_META.IDEA.label,
       href: REGION_META.IDEA.href,
       description: REGION_META.IDEA.description,
       count: inboxCount,
       meta: metaFor(ItemType.IDEA, inboxCount),
-      accent: "from-primary/35 to-accent/50",
-      layoutId: "region-inbox",
+      accent: 'from-primary/35 to-accent/50',
+      layoutId: 'region-inbox',
       always: true,
     },
   ];
@@ -161,18 +160,6 @@ export async function getBrainOverview(): Promise<{
       layoutId: `region-${type.toLowerCase()}`,
     });
   }
-
-  modules.push({
-    key: "search",
-    label: copy.brain.searchLabel,
-    href: "/search",
-    description: copy.brain.searchDescription,
-    count: totalCount,
-    meta: copy.brain.meta.search,
-    accent: "from-muted to-accent/40",
-    layoutId: "region-search",
-    always: true,
-  });
 
   return { modules, totalCount };
 }

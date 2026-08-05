@@ -1,11 +1,11 @@
-import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import bcrypt from "bcryptjs";
-import Credentials from "next-auth/providers/credentials";
+import NextAuth from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import bcrypt from 'bcryptjs';
+import Credentials from 'next-auth/providers/credentials';
 
-import authConfig from "@/auth.config";
-import { db } from "@/lib/db";
-import { loginSchema } from "@/lib/validations/item";
+import authConfig from '@/auth.config';
+import { db } from '@/lib/db';
+import { loginSchema } from '@/lib/validations/item';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -42,7 +42,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   trustHost: true,
-  session: { strategy: "jwt" },
+  session: { strategy: 'jwt' },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

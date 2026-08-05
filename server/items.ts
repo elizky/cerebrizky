@@ -1,10 +1,10 @@
-"use server";
+'use server';
 
-import { ItemSource, ItemType, Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { ItemSource, ItemType, Prisma } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 
-import { copy } from "@/lib/copy";
-import { db } from "@/lib/db";
+import { copy } from '@/lib/copy';
+import { db } from '@/lib/db';
 import {
   createItemSchema,
   DEFAULT_STATUS,
@@ -13,29 +13,29 @@ import {
   resolveStatus,
   searchSchema,
   updateItemSchema,
-} from "@/lib/validations/item";
-import { requireUserId } from "@/server/auth";
+} from '@/lib/validations/item';
+import { requireUserId } from '@/server/auth';
 
 function revalidateItemPaths(type?: ItemType) {
-  revalidatePath("/");
-  revalidatePath("/inbox");
-  revalidatePath("/search");
+  revalidatePath('/');
+  revalidatePath('/inbox');
+  revalidatePath('/search');
   if (type) {
     const map: Record<ItemType, string> = {
-      IDEA: "/inbox",
-      NOTE: "/notes",
-      TASK: "/tasks",
-      LINK: "/links",
-      BOOK: "/books",
-      PROJECT: "/projects",
+      IDEA: '/inbox',
+      NOTE: '/notes',
+      TASK: '/tasks',
+      LINK: '/links',
+      BOOK: '/books',
+      PROJECT: '/projects',
     };
     revalidatePath(map[type]);
   } else {
-    revalidatePath("/notes");
-    revalidatePath("/tasks");
-    revalidatePath("/links");
-    revalidatePath("/books");
-    revalidatePath("/projects");
+    revalidatePath('/notes');
+    revalidatePath('/tasks');
+    revalidatePath('/links');
+    revalidatePath('/books');
+    revalidatePath('/projects');
   }
 }
 
@@ -94,7 +94,7 @@ export async function createItem(input: unknown) {
       url: data.url || null,
       status: resolveStatus(data.type, data.status),
       dueAt: data.dueAt ? new Date(data.dueAt) : null,
-      projectId: data.type === ItemType.PROJECT ? null : data.projectId ?? null,
+      projectId: data.type === ItemType.PROJECT ? null : (data.projectId ?? null),
       metadata: (data.metadata as Prisma.InputJsonValue) ?? undefined,
     },
   });
@@ -151,12 +151,7 @@ export async function updateItem(input: unknown) {
       content: data.content === undefined ? undefined : data.content,
       url: data.url === undefined ? undefined : data.url || null,
       status: nextStatus,
-      dueAt:
-        data.dueAt === undefined
-          ? undefined
-          : data.dueAt
-            ? new Date(data.dueAt)
-            : null,
+      dueAt: data.dueAt === undefined ? undefined : data.dueAt ? new Date(data.dueAt) : null,
       projectId:
         nextType === ItemType.PROJECT
           ? null
@@ -167,12 +162,7 @@ export async function updateItem(input: unknown) {
         data.metadata === undefined
           ? undefined
           : ((data.metadata as Prisma.InputJsonValue) ?? Prisma.JsonNull),
-      archivedAt:
-        data.archived === undefined
-          ? undefined
-          : data.archived
-            ? new Date()
-            : null,
+      archivedAt: data.archived === undefined ? undefined : data.archived ? new Date() : null,
     },
   });
 
@@ -224,7 +214,7 @@ export async function listItems(options: {
       tags: { include: { tag: true } },
       project: { select: { id: true, title: true } },
     },
-    orderBy: { updatedAt: "desc" },
+    orderBy: { updatedAt: 'desc' },
   });
 }
 
@@ -238,7 +228,7 @@ export async function getItem(id: string) {
       project: { select: { id: true, title: true } },
       children: {
         where: { archivedAt: null },
-        orderBy: { updatedAt: "desc" },
+        orderBy: { updatedAt: 'desc' },
       },
       relationsFrom: {
         include: { target: { select: { id: true, title: true, type: true } } },
@@ -259,15 +249,15 @@ export async function searchItems(input: unknown) {
       userId,
       archivedAt: null,
       OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { content: { contains: q, mode: "insensitive" } },
-        { url: { contains: q, mode: "insensitive" } },
+        { title: { contains: q, mode: 'insensitive' } },
+        { content: { contains: q, mode: 'insensitive' } },
+        { url: { contains: q, mode: 'insensitive' } },
       ],
     },
     include: {
       tags: { include: { tag: true } },
     },
-    orderBy: { updatedAt: "desc" },
+    orderBy: { updatedAt: 'desc' },
     take: 50,
   });
 }

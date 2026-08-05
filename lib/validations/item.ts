@@ -1,7 +1,7 @@
-import { ItemType } from "@prisma/client";
-import { z } from "zod";
+import { ItemType } from '@prisma/client';
+import { z } from 'zod';
 
-import { copy } from "@/lib/copy";
+import { copy } from '@/lib/copy';
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -25,7 +25,7 @@ export const createItemSchema = z.object({
   type: itemTypeSchema,
   title: z.string().min(1).max(300),
   content: z.string().max(50000).optional().nullable(),
-  url: z.string().url().optional().nullable().or(z.literal("")),
+  url: z.string().url().optional().nullable().or(z.literal('')),
   status: z.string().min(1).max(40).optional(),
   dueAt: z.string().datetime().optional().nullable(),
   projectId: z.string().cuid().optional().nullable(),
@@ -56,21 +56,21 @@ export const searchSchema = z.object({
 });
 
 export const DEFAULT_STATUS: Record<ItemType, string> = {
-  IDEA: "inbox",
-  NOTE: "active",
-  TASK: "todo",
-  LINK: "active",
-  BOOK: "to_read",
-  PROJECT: "active",
+  IDEA: 'inbox',
+  NOTE: 'active',
+  TASK: 'todo',
+  LINK: 'active',
+  BOOK: 'to_read',
+  PROJECT: 'active',
 };
 
 export const STATUS_OPTIONS: Record<ItemType, readonly string[]> = {
-  IDEA: ["inbox"],
-  NOTE: ["active"],
-  TASK: ["todo", "doing", "done"],
-  LINK: ["active"],
-  BOOK: ["to_read", "reading", "done"],
-  PROJECT: ["active", "paused", "done"],
+  IDEA: ['inbox'],
+  NOTE: ['active'],
+  TASK: ['todo', 'doing', 'done'],
+  LINK: ['active'],
+  BOOK: ['to_read', 'reading', 'done'],
+  PROJECT: ['active', 'paused', 'done'],
 };
 
 export function hasWorkflow(type: ItemType): boolean {
@@ -94,38 +94,38 @@ export const REGION_META: Record<
 > = {
   IDEA: {
     label: copy.regions.IDEA.label,
-    href: "/inbox",
+    href: '/inbox',
     description: copy.regions.IDEA.description,
-    accent: "from-primary/35 to-accent/50",
+    accent: 'from-primary/35 to-accent/50',
   },
   NOTE: {
     label: copy.regions.NOTE.label,
-    href: "/notes",
+    href: '/notes',
     description: copy.regions.NOTE.description,
-    accent: "from-chart-3/80 to-accent/40",
+    accent: 'from-chart-3/80 to-accent/40',
   },
   TASK: {
     label: copy.regions.TASK.label,
-    href: "/tasks",
+    href: '/tasks',
     description: copy.regions.TASK.description,
-    accent: "from-primary/25 to-muted",
+    accent: 'from-primary/25 to-muted',
   },
   PROJECT: {
     label: copy.regions.PROJECT.label,
-    href: "/projects",
+    href: '/projects',
     description: copy.regions.PROJECT.description,
-    accent: "from-ring/25 to-accent/50",
+    accent: 'from-ring/25 to-accent/50',
   },
   LINK: {
     label: copy.regions.LINK.label,
-    href: "/links",
+    href: '/links',
     description: copy.regions.LINK.description,
-    accent: "from-chart-2/20 to-muted",
+    accent: 'from-chart-2/20 to-muted',
   },
   BOOK: {
     label: copy.regions.BOOK.label,
-    href: "/books",
+    href: '/books',
     description: copy.regions.BOOK.description,
-    accent: "from-chart-1/25 to-accent/40",
+    accent: 'from-chart-1/25 to-accent/40',
   },
 };

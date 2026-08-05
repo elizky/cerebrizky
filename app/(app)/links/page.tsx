@@ -1,10 +1,10 @@
-import { ItemType } from "@prisma/client";
+import { ItemType } from '@prisma/client';
 
-import { RegionShell } from "@/components/brain/RegionShell";
-import { CreateItemTrigger } from "@/components/items/CreateItemTrigger";
-import { ItemList } from "@/components/items/ItemList";
-import { copy } from "@/lib/copy";
-import { listItems } from "@/server/items";
+import { RegionShell } from '@/components/brain/RegionShell';
+import { CreateItemTrigger } from '@/components/items/CreateItemTrigger';
+import { ItemList } from '@/components/items/ItemList';
+import { copy } from '@/lib/copy';
+import { listItems } from '@/server/items';
 
 export default async function LinksPage() {
   const [items, projects] = await Promise.all([
@@ -14,7 +14,7 @@ export default async function LinksPage() {
 
   return (
     <RegionShell
-      layoutId="region-link"
+      layoutId='region-link'
       title={copy.regions.LINK.label}
       description={copy.regions.LINK.pageDescription}
       actions={

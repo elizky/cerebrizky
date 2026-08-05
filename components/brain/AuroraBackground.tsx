@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 export type AuroraBand = {
   key: string;
@@ -36,7 +36,7 @@ function bandWidths(bands: AuroraBand[]): Float32Array {
   const widths = new Float32Array(MAX_LINES);
   const active = bands.slice(0, MAX_LINES);
   if (active.length === 0) {
-    widths[0] = 0.04;
+    widths[0] = 0.018;
     return widths;
   }
 
@@ -44,8 +44,7 @@ function bandWidths(bands: AuroraBand[]): Float32Array {
 
   for (let i = 0; i < active.length; i++) {
     const t = Math.sqrt(active[i].weight / maxWeight);
-    // Maps module volume → plasma half-width (Framer range ~0.01–0.2)
-    widths[i] = 0.012 + t * 0.1;
+    widths[i] = 0.006 + t * 0.032;
   }
 
   return widths;
@@ -116,17 +115,17 @@ const FS = `
       float normalizedLineIndex = float(l) / max(count, 1.0);
       float offsetTime = iTime * offsetSpeed * uOverallSpeed;
       float offsetPosition = float(l) + space.x * offsetFrequency;
-      float intensity = 0.55 + 0.45 * (1.0 - normalizedLineIndex);
-      float halfWidth = uWidths[l] * (0.7 + 0.3 * horizontalFade);
+      float intensity = 0.16 + 0.1 * (1.0 - normalizedLineIndex);
+      float halfWidth = uWidths[l] * (0.65 + 0.25 * horizontalFade);
       float offset = random(offsetPosition + offsetTime * (1.0 + normalizedLineIndex))
         * mix(minOffsetSpread, maxOffsetSpread, horizontalFade);
       float linePosition = getPlasmaY(space.x, horizontalFade, offset);
-      float line = drawSmoothLine(linePosition, halfWidth, space.y) / 2.0
-        + drawCrispLine(linePosition, halfWidth * 0.15, space.y);
+      float line = drawSmoothLine(linePosition, halfWidth, space.y) * 0.55
+        + drawCrispLine(linePosition, halfWidth * 0.08, space.y) * 0.35;
 
       float circleX = mod(float(l) + iTime * lineSpeed * uOverallSpeed, 25.0) - 12.0;
       vec2 circlePosition = vec2(circleX, getPlasmaY(circleX, horizontalFade, offset));
-      float circle = drawCircle(circlePosition, 0.01, space) * 4.0;
+      float circle = drawCircle(circlePosition, 0.008, space) * 1.1;
 
       line = line + circle;
       lines += line * vec4(uLineColor, 1.0) * intensity;
@@ -135,7 +134,7 @@ const FS = `
     vec4 fragColor = mix(vec4(uBgColor1, 1.0), vec4(uBgColor2, 1.0), uv.x);
     fragColor *= verticalFade;
     fragColor.a = 1.0;
-    fragColor += lines;
+    fragColor.rgb += lines.rgb * 0.5;
 
     vec2 center = uv - 0.5;
     float vignette = 1.0 - smoothstep(0.35, 1.15, length(center) * 1.1);
@@ -148,30 +147,33 @@ const FS = `
 export function AuroraBackground({
   className,
   bands,
-  lineColor = "#FACC14",
-  bgColor1 = "#1a1a1a",
-  bgColor2 = "#2a2410",
-  overallSpeed = 0.22,
+  lineColor = '#8A7418',
+  bgColor1 = '#1a1a1a',
+  bgColor2 = '#222018',
+  overallSpeed = 0.18,
   scale = 5,
-  lineAmplitude = 1.05,
+  lineAmplitude = 0.9,
   lineFrequency = 0.2,
-  warpAmplitude = 1.1,
-  warpFrequency = 0.5,
+  warpAmplitude = 0.85,
+  warpFrequency = 0.45,
 }: AuroraBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bandsRef = useRef(bands);
-  bandsRef.current = bands;
+
+  useEffect(() => {
+    bandsRef.current = bands;
+  }, [bands]);
 
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    const gl = canvas.getContext("webgl", {
+    const gl = canvas.getContext('webgl', {
       alpha: false,
       antialias: false,
-      powerPreference: "low-power",
+      powerPreference: 'low-power',
     });
     if (!gl) return;
 
@@ -201,30 +203,26 @@ export function AuroraBackground({
 
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-      gl.STATIC_DRAW
-    );
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
 
-    const positionLoc = gl.getAttribLocation(program, "aVertexPosition");
+    const positionLoc = gl.getAttribLocation(program, 'aVertexPosition');
     gl.enableVertexAttribArray(positionLoc);
     gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
 
     const u = {
-      resolution: gl.getUniformLocation(program, "iResolution"),
-      time: gl.getUniformLocation(program, "iTime"),
-      lineColor: gl.getUniformLocation(program, "uLineColor"),
-      bgColor1: gl.getUniformLocation(program, "uBgColor1"),
-      bgColor2: gl.getUniformLocation(program, "uBgColor2"),
-      overallSpeed: gl.getUniformLocation(program, "uOverallSpeed"),
-      scale: gl.getUniformLocation(program, "uScale"),
-      lineAmplitude: gl.getUniformLocation(program, "uLineAmplitude"),
-      lineFrequency: gl.getUniformLocation(program, "uLineFrequency"),
-      warpAmplitude: gl.getUniformLocation(program, "uWarpAmplitude"),
-      warpFrequency: gl.getUniformLocation(program, "uWarpFrequency"),
-      lineCount: gl.getUniformLocation(program, "uLineCount"),
-      widths: gl.getUniformLocation(program, "uWidths"),
+      resolution: gl.getUniformLocation(program, 'iResolution'),
+      time: gl.getUniformLocation(program, 'iTime'),
+      lineColor: gl.getUniformLocation(program, 'uLineColor'),
+      bgColor1: gl.getUniformLocation(program, 'uBgColor1'),
+      bgColor2: gl.getUniformLocation(program, 'uBgColor2'),
+      overallSpeed: gl.getUniformLocation(program, 'uOverallSpeed'),
+      scale: gl.getUniformLocation(program, 'uScale'),
+      lineAmplitude: gl.getUniformLocation(program, 'uLineAmplitude'),
+      lineFrequency: gl.getUniformLocation(program, 'uLineFrequency'),
+      warpAmplitude: gl.getUniformLocation(program, 'uWarpAmplitude'),
+      warpFrequency: gl.getUniformLocation(program, 'uWarpFrequency'),
+      lineCount: gl.getUniformLocation(program, 'uLineCount'),
+      widths: gl.getUniformLocation(program, 'uWidths'),
     };
 
     const lineRgb = hexToRgb(lineColor);
@@ -300,10 +298,10 @@ export function AuroraBackground({
     <div
       ref={containerRef}
       aria-hidden
-      className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
+      className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}
       style={{ backgroundColor: bgColor1 }}
     >
-      <canvas ref={canvasRef} className="block h-full w-full" />
+      <canvas ref={canvasRef} className='block h-full w-full' />
     </div>
   );
 }
