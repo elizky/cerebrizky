@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { buildItemMetadata, type MusicKind } from '@/lib/item-metadata';
 import { copy, statusLabel } from '@/lib/copy';
 import { cn } from '@/lib/utils';
 import { DEFAULT_STATUS, hasWorkflow, REGION_META, STATUS_OPTIONS } from '@/lib/validations/item';
@@ -46,12 +47,17 @@ export function CreateItemForm({
   const [status, setStatus] = useState(DEFAULT_STATUS[defaultType]);
   const [projectId, setProjectId] = useState<string>(defaultProjectId ?? 'none');
   const [author, setAuthor] = useState('');
+  const [studio, setStudio] = useState('');
+  const [artist, setArtist] = useState('');
+  const [musicKind, setMusicKind] = useState<MusicKind>('album');
   const [error, setError] = useState<string | null>(null);
 
   const showProject = type !== ItemType.PROJECT && projects.length > 0;
   const showStatus = hasWorkflow(type);
   const showUrl = type === ItemType.LINK;
   const showAuthor = type === ItemType.BOOK;
+  const showStudio = type === ItemType.GAME;
+  const showMusicMeta = type === ItemType.MUSIC;
 
   function onTypeChange(value: ItemType) {
     setType(value);
@@ -63,6 +69,9 @@ export function CreateItemForm({
     setContent('');
     setUrl('');
     setAuthor('');
+    setStudio('');
+    setArtist('');
+    setMusicKind('album');
     setStatus(DEFAULT_STATUS[keep.type]);
     setType(keep.type);
     setProjectId(keep.projectId);
@@ -81,7 +90,7 @@ export function CreateItemForm({
           url: type === ItemType.LINK ? url : url || null,
           status: hasWorkflow(type) ? status : DEFAULT_STATUS[type],
           projectId: projectId === 'none' ? null : projectId,
-          metadata: type === ItemType.BOOK && author ? { author } : null,
+          metadata: buildItemMetadata(type, { author, studio, artist, kind: musicKind }),
         });
 
         if (mode === 'another') {
@@ -193,8 +202,13 @@ export function CreateItemForm({
         ) : null}
       </div>
 
-      {showUrl || showAuthor ? (
-        <div className={cn('grid gap-2', showUrl && showAuthor && 'sm:grid-cols-2')}>
+      {showUrl || showAuthor || showStudio || showMusicMeta ? (
+        <div
+          className={cn(
+            'grid gap-2',
+            (showUrl && showAuthor) || showMusicMeta ? 'sm:grid-cols-2' : 'grid-cols-1',
+          )}
+        >
           {showUrl ? (
             <div className='space-y-1.5'>
               <Label htmlFor='create-url' className='text-xs text-muted-foreground'>
@@ -222,6 +236,46 @@ export function CreateItemForm({
                 className='h-9'
               />
             </div>
+          ) : null}
+          {showStudio ? (
+            <div className='space-y-1.5'>
+              <Label htmlFor='create-studio' className='text-xs text-muted-foreground'>
+                {copy.items.studio}
+              </Label>
+              <Input
+                id='create-studio'
+                value={studio}
+                onChange={(e) => setStudio(e.target.value)}
+                className='h-9'
+              />
+            </div>
+          ) : null}
+          {showMusicMeta ? (
+            <>
+              <div className='space-y-1.5'>
+                <Label className='text-xs text-muted-foreground'>{copy.items.musicKind}</Label>
+                <Select value={musicKind} onValueChange={(v) => setMusicKind(v as MusicKind)}>
+                  <SelectTrigger className='h-9'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='album'>{copy.items.musicAlbum}</SelectItem>
+                    <SelectItem value='track'>{copy.items.musicTrack}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='space-y-1.5'>
+                <Label htmlFor='create-artist' className='text-xs text-muted-foreground'>
+                  {copy.items.artist}
+                </Label>
+                <Input
+                  id='create-artist'
+                  value={artist}
+                  onChange={(e) => setArtist(e.target.value)}
+                  className='h-9'
+                />
+              </div>
+            </>
           ) : null}
         </div>
       ) : null}

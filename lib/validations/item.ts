@@ -62,6 +62,9 @@ export const DEFAULT_STATUS: Record<ItemType, string> = {
   LINK: 'active',
   BOOK: 'to_read',
   PROJECT: 'active',
+  GAME: 'wishlist',
+  MUSIC: 'to_listen',
+  WRITING: 'active',
 };
 
 export const STATUS_OPTIONS: Record<ItemType, readonly string[]> = {
@@ -71,6 +74,9 @@ export const STATUS_OPTIONS: Record<ItemType, readonly string[]> = {
   LINK: ['active'],
   BOOK: ['to_read', 'reading', 'done'],
   PROJECT: ['active', 'paused', 'done'],
+  GAME: ['wishlist', 'playing', 'done'],
+  MUSIC: ['to_listen', 'listening', 'done'],
+  WRITING: ['active'],
 };
 
 export function hasWorkflow(type: ItemType): boolean {
@@ -108,24 +114,42 @@ export const REGION_META: Record<
     label: copy.regions.TASK.label,
     href: '/tasks',
     description: copy.regions.TASK.description,
-    accent: 'from-primary/25 to-muted',
+    accent: 'from-muted/10 to-primary/25',
   },
   PROJECT: {
     label: copy.regions.PROJECT.label,
     href: '/projects',
     description: copy.regions.PROJECT.description,
-    accent: 'from-ring/25 to-accent/50',
+    accent: 'from-ring/10 to-accent/50',
   },
   LINK: {
     label: copy.regions.LINK.label,
     href: '/links',
     description: copy.regions.LINK.description,
-    accent: 'from-chart-2/20 to-muted',
+    accent: 'from-chart-3/10 to-primary/10',
   },
   BOOK: {
     label: copy.regions.BOOK.label,
     href: '/books',
     description: copy.regions.BOOK.description,
-    accent: 'from-chart-1/25 to-accent/40',
+    accent: 'from-accent/75 to-primary/20',
+  },
+  GAME: {
+    label: copy.regions.GAME.label,
+    href: '/games',
+    description: copy.regions.GAME.description,
+    accent: 'from-ring/30 to-primary/15',
+  },
+  MUSIC: {
+    label: copy.regions.MUSIC.label,
+    href: '/music',
+    description: copy.regions.MUSIC.description,
+    accent: 'from-chart-2/20 to-accent/40',
+  },
+  WRITING: {
+    label: copy.regions.WRITING.label,
+    href: '/writings',
+    description: copy.regions.WRITING.description,
+    accent: 'from-primary/20 to-muted',
   },
 };

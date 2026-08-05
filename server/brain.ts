@@ -28,7 +28,15 @@ export async function getBrainOverview(): Promise<{
   const userId = await requireUserId();
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [grouped, pendingTasks, activeProjects, toReadBooks, newIdeas] = await Promise.all([
+  const [
+    grouped,
+    pendingTasks,
+    activeProjects,
+    toReadBooks,
+    wishlistGames,
+    toListenMusic,
+    newIdeas,
+  ] = await Promise.all([
     db.item.groupBy({
       by: ['type'],
       where: { userId, archivedAt: null },
@@ -57,6 +65,22 @@ export async function getBrainOverview(): Promise<{
         archivedAt: null,
         type: ItemType.BOOK,
         status: 'to_read',
+      },
+    }),
+    db.item.count({
+      where: {
+        userId,
+        archivedAt: null,
+        type: ItemType.GAME,
+        status: 'wishlist',
+      },
+    }),
+    db.item.count({
+      where: {
+        userId,
+        archivedAt: null,
+        type: ItemType.MUSIC,
+        status: 'to_listen',
       },
     }),
     db.item.count({
@@ -92,6 +116,7 @@ export async function getBrainOverview(): Promise<{
         }
         return fill(copy.brain.meta.unclassified, { n: count });
       case ItemType.NOTE:
+      case ItemType.WRITING:
         return last
           ? fill(copy.brain.meta.lastFeminine, {
               when: formatRelativeShort(last),
@@ -113,6 +138,24 @@ export async function getBrainOverview(): Promise<{
         }
         return last
           ? fill(copy.brain.meta.lastMasculine, {
+              when: formatRelativeShort(last),
+            })
+          : copy.brain.meta.empty;
+      case ItemType.GAME:
+        if (wishlistGames > 0) {
+          return fill(copy.brain.meta.wishlist, { n: wishlistGames });
+        }
+        return last
+          ? fill(copy.brain.meta.lastMasculine, {
+              when: formatRelativeShort(last),
+            })
+          : copy.brain.meta.empty;
+      case ItemType.MUSIC:
+        if (toListenMusic > 0) {
+          return fill(copy.brain.meta.toListen, { n: toListenMusic });
+        }
+        return last
+          ? fill(copy.brain.meta.lastFeminine, {
               when: formatRelativeShort(last),
             })
           : copy.brain.meta.empty;
@@ -142,6 +185,9 @@ export async function getBrainOverview(): Promise<{
     ItemType.PROJECT,
     ItemType.LINK,
     ItemType.BOOK,
+    ItemType.GAME,
+    ItemType.MUSIC,
+    ItemType.WRITING,
   ];
 
   for (const type of regionTypes) {

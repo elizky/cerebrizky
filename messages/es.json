@@ -2,17 +2,7 @@
   "app": {
     "name": "Cerebrizky",
     "tagline": "Segundo cerebro",
-    "description": "Sistema para capturar, organizar y recuperar conocimiento personal",
-    "meshTemplates": "Fondo",
-    "aurora": "Aurora",
-    "mesh": {
-      "Quantum Entanglement": "Entrelazamiento",
-      "Elastic Spiderweb": "Telaraña",
-      "Constellation Curves": "Constelación",
-      "Living Origami": "Origami",
-      "Magnetic Topography": "Topografía",
-      "Cybernetic Circuits": "Circuitos"
-    }
+    "description": "Sistema para capturar, organizar y recuperar conocimiento personal"
   },
   "auth": {
     "email": "Email",
@@ -54,6 +44,8 @@
       "pending": "{n} pendientes",
       "active": "{n} activos",
       "toRead": "{n} por leer",
+      "wishlist": "{n} en el tintero",
+      "toListen": "{n} por escuchar",
       "lastFeminine": "Última: {when}",
       "lastMasculine": "Último: {when}",
       "search": "En todas las regiones",
@@ -97,6 +89,21 @@
       "label": "Libros",
       "description": "Lista de lectura",
       "pageDescription": "Tablero de lectura. Arrastrá entre por leer, leyendo y hecho."
+    },
+    "GAME": {
+      "label": "Juegos",
+      "description": "Tintero e impresiones",
+      "pageDescription": "Juegos en el tintero, en curso y terminados. Impresiones en el contenido."
+    },
+    "MUSIC": {
+      "label": "Música",
+      "description": "Discos y canciones",
+      "pageDescription": "Discos y canciones. Arrastrá entre por escuchar, escuchando y hecho."
+    },
+    "WRITING": {
+      "label": "Escritos",
+      "description": "Cuentos y textos",
+      "pageDescription": "Escritos largos en Markdown. Importables desde archivos .md."
     }
   },
   "search": {
@@ -114,7 +121,11 @@
     "done": "Hecho",
     "to_read": "Por leer",
     "reading": "Leyendo",
-    "paused": "Pausado"
+    "paused": "Pausado",
+    "wishlist": "Tintero",
+    "playing": "Jugando",
+    "to_listen": "Por escuchar",
+    "listening": "Escuchando"
   },
   "items": {
     "createTitle": "Nuevo item",
@@ -124,6 +135,11 @@
     "title": "Título",
     "url": "URL",
     "author": "Autor",
+    "studio": "Estudio",
+    "artist": "Artista",
+    "musicKind": "Formato",
+    "musicAlbum": "Disco",
+    "musicTrack": "Canción",
     "project": "Proyecto",
     "content": "Contenido",
     "none": "Ninguno",

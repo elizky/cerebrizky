@@ -28,6 +28,9 @@ function revalidateItemPaths(type?: ItemType) {
       LINK: '/links',
       BOOK: '/books',
       PROJECT: '/projects',
+      GAME: '/games',
+      MUSIC: '/music',
+      WRITING: '/writings',
     };
     revalidatePath(map[type]);
   } else {
@@ -36,6 +39,9 @@ function revalidateItemPaths(type?: ItemType) {
     revalidatePath('/links');
     revalidatePath('/books');
     revalidatePath('/projects');
+    revalidatePath('/games');
+    revalidatePath('/music');
+    revalidatePath('/writings');
   }
 }
 
@@ -199,6 +205,7 @@ export async function listItems(options: {
   includeArchived?: boolean;
   projectId?: string | null;
   status?: string;
+  orderBy?: Prisma.ItemOrderByWithRelationInput;
 }) {
   const userId = await requireUserId();
 
@@ -214,7 +221,7 @@ export async function listItems(options: {
       tags: { include: { tag: true } },
       project: { select: { id: true, title: true } },
     },
-    orderBy: { updatedAt: 'desc' },
+    orderBy: options.orderBy ?? { updatedAt: 'desc' },
   });
 }
 

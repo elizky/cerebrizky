@@ -28,6 +28,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     TASK: children.filter((item) => item.type === ItemType.TASK),
     LINK: children.filter((item) => item.type === ItemType.LINK),
     BOOK: children.filter((item) => item.type === ItemType.BOOK),
+    GAME: children.filter((item) => item.type === ItemType.GAME),
+    MUSIC: children.filter((item) => item.type === ItemType.MUSIC),
+    WRITING: children.filter((item) => item.type === ItemType.WRITING),
     IDEA: children.filter((item) => item.type === ItemType.IDEA),
   };
 

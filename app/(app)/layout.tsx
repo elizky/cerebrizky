@@ -1,11 +1,9 @@
-import { auth } from '@/auth';
 import { AppShell } from '@/components/layout/AppShell';
 import { getBrainOverview } from '@/server/brain';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
   const { modules, totalCount } = await getBrainOverview();
-  const auroraBands = modules
+  const bands = modules
     .filter((module) => module.key !== 'search')
     .map((module) => ({
       key: module.key,
@@ -13,11 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     }));
 
   return (
-    <AppShell
-      userName={session?.user?.name ?? session?.user?.email}
-      auroraBands={auroraBands}
-      totalCount={totalCount}
-    >
+    <AppShell bands={bands} totalCount={totalCount}>
       {children}
     </AppShell>
   );

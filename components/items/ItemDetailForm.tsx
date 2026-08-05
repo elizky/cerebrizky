@@ -19,6 +19,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  buildItemMetadata,
+  readMetaString,
+  readMusicKind,
+  type MusicKind,
+} from '@/lib/item-metadata';
 import { copy, statusLabel } from '@/lib/copy';
 import { cn } from '@/lib/utils';
 import {
@@ -75,14 +81,10 @@ export function ItemDetailForm({ item, tags, projects, relatableItems }: ItemDet
   const [content, setContent] = useState(item.content ?? '');
   const [url, setUrl] = useState(item.url ?? '');
   const [projectId, setProjectId] = useState(item.projectId ?? 'none');
-  const [author, setAuthor] = useState(
-    typeof item.metadata === 'object' &&
-      item.metadata &&
-      'author' in item.metadata &&
-      typeof (item.metadata as { author?: unknown }).author === 'string'
-      ? (item.metadata as { author: string }).author
-      : '',
-  );
+  const [author, setAuthor] = useState(readMetaString(item.metadata, 'author') ?? '');
+  const [studio, setStudio] = useState(readMetaString(item.metadata, 'studio') ?? '');
+  const [artist, setArtist] = useState(readMetaString(item.metadata, 'artist') ?? '');
+  const [musicKind, setMusicKind] = useState<MusicKind>(readMusicKind(item.metadata));
   const [targetId, setTargetId] = useState('none');
   const [error, setError] = useState<string | null>(null);
 
@@ -96,6 +98,8 @@ export function ItemDetailForm({ item, tags, projects, relatableItems }: ItemDet
   const showProject = type !== ItemType.PROJECT;
   const showUrl = type === ItemType.LINK;
   const showAuthor = type === ItemType.BOOK;
+  const showStudio = type === ItemType.GAME;
+  const showMusicMeta = type === ItemType.MUSIC;
   const metaCols = 1 + (showStatus ? 1 : 0) + (showProject ? 1 : 0);
   const relations = [
     ...item.relationsFrom.map((relation) => ({
@@ -142,7 +146,7 @@ export function ItemDetailForm({ item, tags, projects, relatableItems }: ItemDet
               content,
               url: url || null,
               projectId: projectId === 'none' ? null : projectId,
-              metadata: type === ItemType.BOOK ? { author } : null,
+              metadata: buildItemMetadata(type, { author, studio, artist, kind: musicKind }),
             });
             router.push(`/items/${item.id}`);
           });
@@ -247,8 +251,13 @@ export function ItemDetailForm({ item, tags, projects, relatableItems }: ItemDet
           ) : null}
         </div>
 
-        {showUrl || showAuthor ? (
-          <div className={cn('grid gap-4', showUrl && showAuthor && 'sm:grid-cols-2')}>
+        {showUrl || showAuthor || showStudio || showMusicMeta ? (
+          <div
+            className={cn(
+              'grid gap-4',
+              (showUrl && showAuthor) || showMusicMeta ? 'sm:grid-cols-2' : 'grid-cols-1',
+            )}
+          >
             {showUrl ? (
               <div className='space-y-2'>
                 <Label htmlFor='edit-url'>{copy.items.url}</Label>
@@ -269,6 +278,40 @@ export function ItemDetailForm({ item, tags, projects, relatableItems }: ItemDet
                   onChange={(e) => setAuthor(e.target.value)}
                 />
               </div>
+            ) : null}
+            {showStudio ? (
+              <div className='space-y-2'>
+                <Label htmlFor='edit-studio'>{copy.items.studio}</Label>
+                <Input
+                  id='edit-studio'
+                  value={studio}
+                  onChange={(e) => setStudio(e.target.value)}
+                />
+              </div>
+            ) : null}
+            {showMusicMeta ? (
+              <>
+                <div className='space-y-2'>
+                  <Label>{copy.items.musicKind}</Label>
+                  <Select value={musicKind} onValueChange={(v) => setMusicKind(v as MusicKind)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='album'>{copy.items.musicAlbum}</SelectItem>
+                      <SelectItem value='track'>{copy.items.musicTrack}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className='space-y-2'>
+                  <Label htmlFor='edit-artist'>{copy.items.artist}</Label>
+                  <Input
+                    id='edit-artist'
+                    value={artist}
+                    onChange={(e) => setArtist(e.target.value)}
+                  />
+                </div>
+              </>
             ) : null}
           </div>
         ) : null}

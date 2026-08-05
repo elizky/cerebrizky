@@ -13,6 +13,9 @@ enum ItemType {
   LINK
   BOOK
   PROJECT
+  GAME
+  MUSIC
+  WRITING
 }
 
 enum ItemSource {

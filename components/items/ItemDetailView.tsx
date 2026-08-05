@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { MarkdownContent } from '@/components/items/MarkdownContent';
 import { Badge } from '@/components/ui/badge';
+import { readMetaString, readMusicKind } from '@/lib/item-metadata';
 import { copy, fill } from '@/lib/copy';
 import { REGION_META } from '@/lib/validations/item';
 
@@ -31,20 +32,11 @@ type ItemDetailViewProps = {
   };
 };
 
-function readAuthor(metadata: unknown): string | null {
-  if (
-    typeof metadata === 'object' &&
-    metadata &&
-    'author' in metadata &&
-    typeof (metadata as { author?: unknown }).author === 'string'
-  ) {
-    return (metadata as { author: string }).author;
-  }
-  return null;
-}
-
 export function ItemDetailView({ item }: ItemDetailViewProps) {
-  const author = item.type === ItemType.BOOK ? readAuthor(item.metadata) : null;
+  const author = item.type === ItemType.BOOK ? readMetaString(item.metadata, 'author') : null;
+  const studio = item.type === ItemType.GAME ? readMetaString(item.metadata, 'studio') : null;
+  const artist = item.type === ItemType.MUSIC ? readMetaString(item.metadata, 'artist') : null;
+  const musicKind = item.type === ItemType.MUSIC ? readMusicKind(item.metadata) : null;
   const hasRelations = item.relationsFrom.length > 0 || item.relationsTo.length > 0;
 
   return (
@@ -80,6 +72,27 @@ export function ItemDetailView({ item }: ItemDetailViewProps) {
         </div>
       ) : null}
 
+      {studio ? (
+        <div className='space-y-1'>
+          <p className='text-eyebrow text-muted-foreground'>{copy.items.studio}</p>
+          <p>{studio}</p>
+        </div>
+      ) : null}
+
+      {musicKind ? (
+        <div className='space-y-1'>
+          <p className='text-eyebrow text-muted-foreground'>{copy.items.musicKind}</p>
+          <p>{musicKind === 'track' ? copy.items.musicTrack : copy.items.musicAlbum}</p>
+        </div>
+      ) : null}
+
+      {artist ? (
+        <div className='space-y-1'>
+          <p className='text-eyebrow text-muted-foreground'>{copy.items.artist}</p>
+          <p>{artist}</p>
+        </div>
+      ) : null}
+
       {item.project ? (
         <div className='flex items-center gap-2 space-y-1'>
           <h2>{copy.items.project}:</h2>
@@ -92,7 +105,10 @@ export function ItemDetailView({ item }: ItemDetailViewProps) {
       {item.content ? (
         <div className='space-y-2'>
           <h2>{copy.items.content}</h2>
-          {item.type === ItemType.NOTE || item.type === ItemType.BOOK ? (
+          {item.type === ItemType.NOTE ||
+          item.type === ItemType.BOOK ||
+          item.type === ItemType.WRITING ||
+          item.type === ItemType.GAME ? (
             <MarkdownContent content={item.content} />
           ) : (
             <div className='whitespace-pre-wrap text-sm leading-relaxed'>{item.content}</div>

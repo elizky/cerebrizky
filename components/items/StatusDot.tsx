@@ -5,10 +5,14 @@ const STATUS_DOT: Record<string, { color: string; pulse?: boolean }> = {
   inbox: { color: '#ef4444' },
   todo: { color: '#fbbf24' },
   to_read: { color: '#fbbf24' },
+  wishlist: { color: '#fbbf24' },
+  to_listen: { color: '#fbbf24' },
   paused: { color: '#fbbf24' },
   doing: { color: '#34d399', pulse: true },
   active: { color: '#34d399', pulse: true },
   reading: { color: '#34d399', pulse: true },
+  playing: { color: '#34d399', pulse: true },
+  listening: { color: '#34d399', pulse: true },
   done: { color: '#38bdf8' },
 };
 
