@@ -1,8 +1,9 @@
 import { ItemType } from "@prisma/client";
 
 import { RegionShell } from "@/components/brain/RegionShell";
-import { CreateItemForm } from "@/components/items/CreateItemForm";
+import { CreateItemTrigger } from "@/components/items/CreateItemTrigger";
 import { ItemList } from "@/components/items/ItemList";
+import { copy } from "@/lib/copy";
 import { listItems } from "@/server/items";
 
 export default async function LinksPage() {
@@ -14,15 +15,15 @@ export default async function LinksPage() {
   return (
     <RegionShell
       layoutId="region-link"
-      title="Links"
-      description="Saved URLs and references."
-    >
-      <div className="mb-6">
-        <CreateItemForm
+      title={copy.regions.LINK.label}
+      description={copy.regions.LINK.pageDescription}
+      actions={
+        <CreateItemTrigger
           defaultType={ItemType.LINK}
           projects={projects.map((p) => ({ id: p.id, title: p.title }))}
         />
-      </div>
+      }
+    >
       <ItemList items={items} />
     </RegionShell>
   );

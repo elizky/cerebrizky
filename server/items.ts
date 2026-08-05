@@ -3,11 +3,14 @@
 import { ItemSource, ItemType, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+import { copy } from "@/lib/copy";
 import { db } from "@/lib/db";
 import {
   createItemSchema,
   DEFAULT_STATUS,
+  isValidStatus,
   quickCaptureSchema,
+  resolveStatus,
   searchSchema,
   updateItemSchema,
 } from "@/lib/validations/item";
@@ -60,7 +63,11 @@ export async function createItem(input: unknown) {
   const data = createItemSchema.parse(input);
 
   if (data.type === ItemType.LINK && !data.url) {
-    throw new Error("URL is required for links");
+    throw new Error(copy.errors.urlRequired);
+  }
+
+  if (data.status && !isValidStatus(data.type, data.status)) {
+    throw new Error(copy.errors.invalidStatus);
   }
 
   if (data.projectId) {
@@ -73,7 +80,7 @@ export async function createItem(input: unknown) {
       },
     });
     if (!project) {
-      throw new Error("Project not found");
+      throw new Error(copy.errors.projectNotFound);
     }
   }
 
@@ -85,7 +92,7 @@ export async function createItem(input: unknown) {
       title: data.title,
       content: data.content ?? null,
       url: data.url || null,
-      status: data.status ?? DEFAULT_STATUS[data.type],
+      status: resolveStatus(data.type, data.status),
       dueAt: data.dueAt ? new Date(data.dueAt) : null,
       projectId: data.type === ItemType.PROJECT ? null : data.projectId ?? null,
       metadata: (data.metadata as Prisma.InputJsonValue) ?? undefined,
@@ -105,10 +112,22 @@ export async function updateItem(input: unknown) {
     where: { id: data.id, userId },
   });
   if (!existing) {
-    throw new Error("Item not found");
+    throw new Error(copy.errors.itemNotFound);
   }
 
   const nextType = data.type ?? existing.type;
+  const nextStatus =
+    data.status !== undefined || data.type !== undefined
+      ? resolveStatus(nextType, data.status ?? existing.status)
+      : undefined;
+
+  if (
+    data.status !== undefined &&
+    data.status !== nextStatus &&
+    !isValidStatus(nextType, data.status)
+  ) {
+    throw new Error(copy.errors.invalidStatus);
+  }
 
   if (data.projectId) {
     const project = await db.item.findFirst({
@@ -120,7 +139,7 @@ export async function updateItem(input: unknown) {
       },
     });
     if (!project) {
-      throw new Error("Project not found");
+      throw new Error(copy.errors.projectNotFound);
     }
   }
 
@@ -131,7 +150,7 @@ export async function updateItem(input: unknown) {
       title: data.title,
       content: data.content === undefined ? undefined : data.content,
       url: data.url === undefined ? undefined : data.url || null,
-      status: data.status,
+      status: nextStatus,
       dueAt:
         data.dueAt === undefined
           ? undefined
@@ -177,7 +196,7 @@ export async function deleteItem(id: string) {
   const userId = await requireUserId();
   const existing = await db.item.findFirst({ where: { id, userId } });
   if (!existing) {
-    throw new Error("Item not found");
+    throw new Error(copy.errors.itemNotFound);
   }
 
   await db.item.delete({ where: { id } });

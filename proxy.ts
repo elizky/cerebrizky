@@ -8,7 +8,7 @@ const { auth } = NextAuth(authConfig);
 const authRoutes = ["/login", "/register"];
 const apiAuthPrefix = "/api/auth";
 
-export default auth((req) => {
+export const proxy = auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 

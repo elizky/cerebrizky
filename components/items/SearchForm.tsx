@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { copy } from "@/lib/copy";
 
 export function SearchForm({ initialQuery = "" }: { initialQuery?: string }) {
   const router = useRouter();
@@ -26,10 +27,10 @@ export function SearchForm({ initialQuery = "" }: { initialQuery?: string }) {
       <Input
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Search title or content…"
+        placeholder={copy.search.placeholder}
       />
       <Button type="submit" disabled={pending || !q.trim()}>
-        Search
+        {copy.search.submit}
       </Button>
     </form>
   );

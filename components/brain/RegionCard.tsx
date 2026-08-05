@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
+import { copy } from "@/lib/copy";
 import { cn } from "@/lib/utils";
 
 type RegionCardProps = {
@@ -45,7 +46,7 @@ export function RegionCard({
           <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         </div>
         <p className="text-eyebrow">
-          {always ? "Always open" : "Enter region"}
+          {always ? copy.brain.alwaysOpen : copy.brain.enterRegion}
         </p>
       </motion.article>
     </Link>

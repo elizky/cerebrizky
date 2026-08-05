@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { copy } from "@/lib/copy";
 import { registerAction } from "@/server/auth-actions";
 
 export function RegisterForm() {
@@ -27,7 +28,7 @@ export function RegisterForm() {
       }}
     >
       <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
+        <Label htmlFor="name">{copy.auth.name}</Label>
         <Input
           id="name"
           value={name}
@@ -36,7 +37,7 @@ export function RegisterForm() {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{copy.auth.email}</Label>
         <Input
           id="email"
           type="email"
@@ -46,7 +47,7 @@ export function RegisterForm() {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{copy.auth.password}</Label>
         <Input
           id="password"
           type="password"
@@ -58,12 +59,12 @@ export function RegisterForm() {
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Creating…" : "Create account"}
+        {pending ? copy.auth.creatingAccount : copy.auth.createAccount}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        {copy.auth.hasAccount}{" "}
         <Link href="/login" className="underline">
-          Sign in
+          {copy.auth.signIn}
         </Link>
       </p>
     </form>

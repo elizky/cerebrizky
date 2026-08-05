@@ -1,8 +1,9 @@
 import { ItemType } from "@prisma/client";
 
 import { RegionShell } from "@/components/brain/RegionShell";
-import { CreateItemForm } from "@/components/items/CreateItemForm";
+import { CreateItemTrigger } from "@/components/items/CreateItemTrigger";
 import { ItemList } from "@/components/items/ItemList";
+import { copy } from "@/lib/copy";
 import { listItems } from "@/server/items";
 
 export default async function InboxPage() {
@@ -14,15 +15,15 @@ export default async function InboxPage() {
   return (
     <RegionShell
       layoutId="region-inbox"
-      title="Inbox"
-      description="Unsorted captures. Classify them into notes, tasks, or other regions."
-    >
-      <div className="mb-6">
-        <CreateItemForm
+      title={copy.regions.IDEA.label}
+      description={copy.regions.IDEA.pageDescription}
+      actions={
+        <CreateItemTrigger
           defaultType={ItemType.IDEA}
           projects={projects.map((p) => ({ id: p.id, title: p.title }))}
         />
-      </div>
+      }
+    >
       <ItemList items={items} />
     </RegionShell>
   );

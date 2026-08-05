@@ -1,8 +1,10 @@
-import Link from "next/link";
 import { ItemType } from "@prisma/client";
+import { Pencil } from "lucide-react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { REGION_META } from "@/lib/validations/item";
+import { copy, fill, statusLabel } from "@/lib/copy";
+import { hasWorkflow, REGION_META } from "@/lib/validations/item";
 
 type ItemListItem = {
   id: string;
@@ -16,11 +18,18 @@ type ItemListItem = {
   project?: { id: string; title: string } | null;
 };
 
+function itemHref(item: ItemListItem, edit = false) {
+  if (item.type === ItemType.PROJECT && !edit) {
+    return `/projects/${item.id}`;
+  }
+  return edit ? `/items/${item.id}?edit=1` : `/items/${item.id}`;
+}
+
 export function ItemList({ items }: { items: ItemListItem[] }) {
   if (items.length === 0) {
     return (
       <p className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-        Nothing here yet.
+        {copy.items.empty}
       </p>
     );
   }
@@ -28,18 +37,16 @@ export function ItemList({ items }: { items: ItemListItem[] }) {
   return (
     <ul className="space-y-3">
       {items.map((item) => (
-        <li key={item.id}>
+        <li key={item.id} className="relative">
           <Link
-            href={
-              item.type === ItemType.PROJECT
-                ? `/projects/${item.id}`
-                : `/items/${item.id}`
-            }
-            className="block rounded-lg border border-border bg-popover px-4 py-3 transition hover:border-ring/40 hover:bg-accent/40"
+            href={itemHref(item)}
+            className="block rounded-lg border border-border bg-popover px-4 py-3 pr-12 transition hover:border-ring/40 hover:bg-accent/40"
           >
             <div className="flex flex-wrap items-center gap-2">
               <h3>{item.title}</h3>
-              <Badge variant="outline">{item.status}</Badge>
+              {hasWorkflow(item.type) ? (
+                <Badge variant="outline">{statusLabel(item.status)}</Badge>
+              ) : null}
               <Badge variant="secondary">{REGION_META[item.type].label}</Badge>
             </div>
             {item.content ? (
@@ -52,7 +59,7 @@ export function ItemList({ items }: { items: ItemListItem[] }) {
             ) : null}
             {item.project ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                Project: {item.project.title}
+                {fill(copy.items.projectLabel, { title: item.project.title })}
               </p>
             ) : null}
             {item.tags && item.tags.length > 0 ? (
@@ -64,6 +71,14 @@ export function ItemList({ items }: { items: ItemListItem[] }) {
                 ))}
               </div>
             ) : null}
+          </Link>
+          <Link
+            href={itemHref(item, true)}
+            aria-label={copy.items.editItem}
+            title={copy.items.edit}
+            className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-accent hover:text-foreground"
+          >
+            <Pencil className="h-4 w-4" />
           </Link>
         </li>
       ))}

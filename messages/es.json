@@ -1,0 +1,149 @@
+{
+  "app": {
+    "name": "Cerebrizky",
+    "tagline": "Segundo cerebro",
+    "description": "Sistema para capturar, organizar y recuperar conocimiento personal"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "signIn": "Entrar",
+    "signingIn": "Entrando…",
+    "signOut": "Salir",
+    "createAccount": "Crear cuenta",
+    "creatingAccount": "Creando…",
+    "continueWithGoogle": "Continuar con Google",
+    "noAccount": "¿No tenés cuenta?",
+    "register": "Registrate",
+    "hasAccount": "¿Ya tenés cuenta?",
+    "loginSubtitle": "Entrá a tu segundo cerebro",
+    "registerTitle": "Crear vault",
+    "registerSubtitle": "Una cuenta. Tu cerebro personal.",
+    "invalidCredentials": "Email o contraseña incorrectos",
+    "emailTaken": "Ese email ya está registrado",
+    "registerLoginFailed": "Cuenta creada, pero falló el login"
+  },
+  "shell": {
+    "capturePlaceholder": "Capturá un pensamiento…",
+    "capture": "Capturar",
+    "saving": "Guardando…",
+    "captureError": "No se pudo capturar"
+  },
+  "brain": {
+    "empty": "Vault vacío. Capturá el primer pensamiento para que crezca una región.",
+    "populated": "Entrá a una región de tu mente. Solo aparecen las que tienen contenido.",
+    "enterRegion": "Entrar a la región",
+    "alwaysOpen": "Siempre abierta",
+    "back": "Volver al cerebro",
+    "searchLabel": "Buscar",
+    "searchDescription": "Encontrá en todas las regiones"
+  },
+  "regions": {
+    "IDEA": {
+      "label": "Inbox",
+      "description": "Capturas sin clasificar",
+      "pageDescription": "Capturas sin clasificar. Pasalas a notas, tareas u otras regiones."
+    },
+    "NOTE": {
+      "label": "Notas",
+      "description": "Pensamiento escrito",
+      "pageDescription": "Pensamiento escrito en Markdown."
+    },
+    "TASK": {
+      "label": "Tareas",
+      "description": "Cosas por hacer",
+      "pageDescription": "Tablero por estado. Arrastrá las tarjetas entre columnas."
+    },
+    "PROJECT": {
+      "label": "Proyectos",
+      "description": "Contenedores de trabajo",
+      "pageDescription": "Contenedores que agrupan items relacionados."
+    },
+    "LINK": {
+      "label": "Links",
+      "description": "URLs guardadas",
+      "pageDescription": "URLs y referencias guardadas."
+    },
+    "BOOK": {
+      "label": "Libros",
+      "description": "Lista de lectura",
+      "pageDescription": "Tablero de lectura. Arrastrá entre por leer, leyendo y hecho."
+    }
+  },
+  "search": {
+    "title": "Buscar",
+    "description": "Buscá por título, contenido o URL.",
+    "placeholder": "Buscar título o contenido…",
+    "submit": "Buscar",
+    "emptyHint": "Escribí una consulta para buscar en el vault."
+  },
+  "statuses": {
+    "inbox": "Inbox",
+    "active": "Activo",
+    "todo": "Por hacer",
+    "doing": "En curso",
+    "done": "Hecho",
+    "to_read": "Por leer",
+    "reading": "Leyendo",
+    "paused": "Pausado"
+  },
+  "items": {
+    "createTitle": "Nuevo item",
+    "close": "Cerrar",
+    "type": "Tipo",
+    "status": "Estado",
+    "title": "Título",
+    "url": "URL",
+    "author": "Autor",
+    "project": "Proyecto",
+    "content": "Contenido",
+    "none": "Ninguno",
+    "create": "Crear",
+    "creating": "Creando…",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "archive": "Archivar",
+    "restore": "Restaurar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "editItem": "Editar item",
+    "archived": "Archivado",
+    "empty": "Nada por acá todavía.",
+    "projectLabel": "Proyecto: {title}",
+    "createFailed": "No se pudo crear",
+    "actionFailed": "La acción falló",
+    "projectFallback": "Contenedor de proyecto",
+    "addToProject": "Agregar al proyecto",
+    "noChildren": "Todavía no hay items hijos. Creá uno y asignale este proyecto.",
+    "dragHint": "Arrastrá las tarjetas entre columnas para cambiar el estado.",
+    "dropHere": "Soltá acá",
+    "moving": "Moviendo…"
+  },
+  "tags": {
+    "title": "Tags",
+    "assignExisting": "Asignar tag existente",
+    "selectTag": "Elegir tag",
+    "assign": "Asignar",
+    "newTag": "Tag nuevo",
+    "createAndAssign": "Crear y asignar"
+  },
+  "relations": {
+    "title": "Relaciones",
+    "relateTo": "Relacionar con item",
+    "selectItem": "Elegir item",
+    "link": "Vincular",
+    "remove": "Quitar"
+  },
+  "errors": {
+    "unauthorized": "No autorizado",
+    "urlRequired": "La URL es obligatoria para links",
+    "projectNotFound": "Proyecto no encontrado",
+    "itemNotFound": "Item no encontrado",
+    "itemsNotFound": "Items no encontrados",
+    "selfRelation": "No se puede relacionar un item consigo mismo",
+    "relationNotFound": "Relación no encontrada",
+    "itemOrTagNotFound": "Item o tag no encontrado",
+    "invalidStatus": "Estado inválido para este tipo"
+  }
+}

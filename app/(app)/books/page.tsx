@@ -1,8 +1,9 @@
 import { ItemType } from "@prisma/client";
 
 import { RegionShell } from "@/components/brain/RegionShell";
-import { CreateItemForm } from "@/components/items/CreateItemForm";
-import { ItemList } from "@/components/items/ItemList";
+import { CreateItemTrigger } from "@/components/items/CreateItemTrigger";
+import { StatusBoard } from "@/components/items/StatusBoard";
+import { copy } from "@/lib/copy";
 import { listItems } from "@/server/items";
 
 export default async function BooksPage() {
@@ -14,16 +15,16 @@ export default async function BooksPage() {
   return (
     <RegionShell
       layoutId="region-book"
-      title="Books"
-      description="Reading list and notes on books."
-    >
-      <div className="mb-6">
-        <CreateItemForm
+      title={copy.regions.BOOK.label}
+      description={copy.regions.BOOK.pageDescription}
+      actions={
+        <CreateItemTrigger
           defaultType={ItemType.BOOK}
           projects={projects.map((p) => ({ id: p.id, title: p.title }))}
         />
-      </div>
-      <ItemList items={items} />
+      }
+    >
+      <StatusBoard type={ItemType.BOOK} items={items} />
     </RegionShell>
   );
 }

@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { copy } from "@/lib/copy";
 import { googleSignInAction, loginAction } from "@/server/auth-actions";
 
 export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }) {
@@ -27,7 +28,7 @@ export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }
         }}
       >
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{copy.auth.email}</Label>
           <Input
             id="email"
             type="email"
@@ -37,7 +38,7 @@ export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{copy.auth.password}</Label>
           <Input
             id="password"
             type="password"
@@ -48,22 +49,22 @@ export function LoginForm({ googleEnabled = false }: { googleEnabled?: boolean }
         </div>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Signing in…" : "Sign in"}
+          {pending ? copy.auth.signingIn : copy.auth.signIn}
         </Button>
       </form>
 
       {googleEnabled ? (
         <form action={googleSignInAction}>
           <Button type="submit" variant="outline" className="w-full" disabled={pending}>
-            Continue with Google
+            {copy.auth.continueWithGoogle}
           </Button>
         </form>
       ) : null}
 
       <p className="text-center text-sm text-muted-foreground">
-        No account?{" "}
+        {copy.auth.noAccount}{" "}
         <Link href="/register" className="underline">
-          Register
+          {copy.auth.register}
         </Link>
       </p>
     </div>

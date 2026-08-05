@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { copy } from "@/lib/copy";
 import { db } from "@/lib/db";
 import { slugify } from "@/lib/utils";
 import { assignTagSchema, tagSchema } from "@/lib/validations/item";
@@ -40,7 +41,7 @@ export async function assignTag(input: unknown) {
   ]);
 
   if (!item || !tag) {
-    throw new Error("Item or tag not found");
+    throw new Error(copy.errors.itemOrTagNotFound);
   }
 
   await db.itemTag.upsert({
@@ -61,7 +62,7 @@ export async function removeTag(input: unknown) {
 
   const item = await db.item.findFirst({ where: { id: data.itemId, userId } });
   if (!item) {
-    throw new Error("Item not found");
+    throw new Error(copy.errors.itemNotFound);
   }
 
   await db.itemTag.deleteMany({

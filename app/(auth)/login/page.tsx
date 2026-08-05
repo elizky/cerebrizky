@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { copy } from "@/lib/copy";
 
 export default function LoginPage() {
   const googleEnabled = Boolean(
@@ -16,8 +17,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-brain px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-3xl">Cerebrizky</CardTitle>
-          <CardDescription>Sign in to your second brain</CardDescription>
+          <CardTitle className="text-3xl">{copy.app.name}</CardTitle>
+          <CardDescription>{copy.auth.loginSubtitle}</CardDescription>
         </CardHeader>
         <CardContent>
           <LoginForm googleEnabled={googleEnabled} />

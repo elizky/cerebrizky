@@ -3,6 +3,7 @@ import Link from "next/link";
 import { signOut } from "@/auth";
 import { QuickCapture } from "@/components/capture/QuickCapture";
 import { Button } from "@/components/ui/button";
+import { copy } from "@/lib/copy";
 
 export function AppShell({
   children,
@@ -17,7 +18,7 @@ export function AppShell({
         <header className="mb-8 flex flex-col gap-4 border-b border-border pb-6">
           <div className="flex items-center justify-between gap-4">
             <Link href="/" className="text-brand">
-              Cerebrizky
+              {copy.app.name}
             </Link>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span className="hidden sm:inline">{userName}</span>
@@ -28,7 +29,7 @@ export function AppShell({
                 }}
               >
                 <Button type="submit" variant="ghost" size="sm">
-                  Sign out
+                  {copy.auth.signOut}
                 </Button>
               </form>
             </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 
+import { copy } from "@/lib/copy";
 import { cn } from "@/lib/utils";
 
 type RegionShellProps = {
@@ -34,21 +35,21 @@ export function RegionShell({
         className
       )}
     >
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-2">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to brain
-          </Link>
-          <h1>{title}</h1>
-          {description ? (
-            <p className="text-sm text-muted-foreground">{description}</p>
-          ) : null}
+      <div className="mb-6 space-y-2">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {copy.brain.back}
+        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="min-w-0 flex-1">{title}</h1>
+          {actions ? <div className="shrink-0">{actions}</div> : null}
         </div>
-        {actions}
+        {description ? (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        ) : null}
       </div>
       {children}
     </motion.section>

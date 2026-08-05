@@ -42,7 +42,7 @@ async function main() {
       type: ItemType.PROJECT,
       source: ItemSource.WEB,
       title: "Cerebrizky MVP",
-      content: "Ship the second brain foundation.",
+      content: "Base del segundo cerebro personal.",
       status: "active",
     },
   });
@@ -52,8 +52,9 @@ async function main() {
       userId: user.id,
       type: ItemType.NOTE,
       source: ItemSource.WEB,
-      title: "Unified Item model",
-      content: "One Item table, typed by enum, tagged and related.",
+      title: "Modelo unificado de Item",
+      content:
+        "Una sola tabla `Item`, tipada por enum, con tags y relaciones.\n\n- Captura primero\n- Clasificá después",
       status: "active",
       projectId: project.id,
     },
@@ -64,8 +65,20 @@ async function main() {
       userId: user.id,
       type: ItemType.TASK,
       source: ItemSource.WEB,
-      title: "Capture first idea from the web UI",
+      title: "Capturar la primera idea desde la web",
       status: "todo",
+      projectId: project.id,
+    },
+  });
+
+  await db.item.create({
+    data: {
+      userId: user.id,
+      type: ItemType.TASK,
+      source: ItemSource.WEB,
+      title: "Probar el tablero de tareas",
+      content: "Arrastrar entre columnas.",
+      status: "doing",
       projectId: project.id,
     },
   });
@@ -75,8 +88,8 @@ async function main() {
       userId: user.id,
       type: ItemType.IDEA,
       source: ItemSource.WEB,
-      title: "ESP32 capture endpoint later",
-      content: "Phase 2: device ingest + AI classification.",
+      title: "Endpoint de captura ESP32 más adelante",
+      content: "Fase 2: ingest de dispositivos + clasificación con IA.",
       status: "inbox",
     },
   });
@@ -86,7 +99,7 @@ async function main() {
       userId: user.id,
       type: ItemType.LINK,
       source: ItemSource.WEB,
-      title: "Prisma docs",
+      title: "Docs de Prisma",
       url: "https://www.prisma.io/docs",
       status: "active",
     },
@@ -98,7 +111,7 @@ async function main() {
       type: ItemType.BOOK,
       source: ItemSource.WEB,
       title: "Building a Second Brain",
-      content: "PARA and progressive summarization.",
+      content: "PARA y progressive summarization.",
       status: "to_read",
       metadata: { author: "Tiago Forte" },
     },
@@ -107,8 +120,8 @@ async function main() {
   const tag = await db.tag.create({
     data: {
       userId: user.id,
-      name: "architecture",
-      slug: "architecture",
+      name: "arquitectura",
+      slug: "arquitectura",
     },
   });
 

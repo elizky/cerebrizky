@@ -1,8 +1,9 @@
 import { ItemType } from "@prisma/client";
 
 import { RegionShell } from "@/components/brain/RegionShell";
-import { CreateItemForm } from "@/components/items/CreateItemForm";
-import { ItemList } from "@/components/items/ItemList";
+import { CreateItemTrigger } from "@/components/items/CreateItemTrigger";
+import { StatusBoard } from "@/components/items/StatusBoard";
+import { copy } from "@/lib/copy";
 import { listItems } from "@/server/items";
 
 export default async function TasksPage() {
@@ -14,16 +15,16 @@ export default async function TasksPage() {
   return (
     <RegionShell
       layoutId="region-task"
-      title="Tasks"
-      description="Actionable items with status."
-    >
-      <div className="mb-6">
-        <CreateItemForm
+      title={copy.regions.TASK.label}
+      description={copy.regions.TASK.pageDescription}
+      actions={
+        <CreateItemTrigger
           defaultType={ItemType.TASK}
           projects={projects.map((p) => ({ id: p.id, title: p.title }))}
         />
-      </div>
-      <ItemList items={items} />
+      }
+    >
+      <StatusBoard type={ItemType.TASK} items={items} />
     </RegionShell>
   );
 }

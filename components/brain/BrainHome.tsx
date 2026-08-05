@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 
 import { RegionCard } from "@/components/brain/RegionCard";
+import { copy } from "@/lib/copy";
 import { REGION_META } from "@/lib/validations/item";
 import type { BrainRegion } from "@/server/brain";
 
@@ -21,12 +22,10 @@ export function BrainHome({ regions, inboxCount, totalCount }: BrainHomeProps) {
         transition={{ duration: 0.4 }}
         className="space-y-3"
       >
-        <p className="text-eyebrow">Second brain</p>
-        <h1 className="text-5xl leading-none md:text-6xl">Cerebrizky</h1>
+        <p className="text-eyebrow">{copy.app.tagline}</p>
+        <h1 className="text-5xl leading-none md:text-6xl">{copy.app.name}</h1>
         <p className="max-w-xl text-sm text-muted-foreground">
-          {totalCount === 0
-            ? "Empty vault. Capture the first thought to grow a region."
-            : "Enter a region of your mind. Only populated areas appear here."}
+          {totalCount === 0 ? copy.brain.empty : copy.brain.populated}
         </p>
       </motion.header>
 
@@ -54,8 +53,8 @@ export function BrainHome({ regions, inboxCount, totalCount }: BrainHomeProps) {
         <RegionCard
           href="/search"
           layoutId="region-search"
-          label="Search"
-          description="Find across every region"
+          label={copy.brain.searchLabel}
+          description={copy.brain.searchDescription}
           count={totalCount}
           accent="from-muted to-accent/40"
           always

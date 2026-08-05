@@ -1,6 +1,8 @@
 import { ItemType } from "@prisma/client";
 import { z } from "zod";
 
+import { copy } from "@/lib/copy";
+
 export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -62,44 +64,68 @@ export const DEFAULT_STATUS: Record<ItemType, string> = {
   PROJECT: "active",
 };
 
+export const STATUS_OPTIONS: Record<ItemType, readonly string[]> = {
+  IDEA: ["inbox"],
+  NOTE: ["active"],
+  TASK: ["todo", "doing", "done"],
+  LINK: ["active"],
+  BOOK: ["to_read", "reading", "done"],
+  PROJECT: ["active", "paused", "done"],
+};
+
+export function hasWorkflow(type: ItemType): boolean {
+  return STATUS_OPTIONS[type].length > 1;
+}
+
+export function isValidStatus(type: ItemType, status: string): boolean {
+  return (STATUS_OPTIONS[type] as readonly string[]).includes(status);
+}
+
+export function resolveStatus(type: ItemType, status?: string | null): string {
+  if (status && isValidStatus(type, status)) {
+    return status;
+  }
+  return DEFAULT_STATUS[type];
+}
+
 export const REGION_META: Record<
   ItemType,
   { label: string; href: string; description: string; accent: string }
 > = {
   IDEA: {
-    label: "Inbox",
+    label: copy.regions.IDEA.label,
     href: "/inbox",
-    description: "Unsorted captures waiting to be classified",
+    description: copy.regions.IDEA.description,
     accent: "from-primary/35 to-accent/50",
   },
   NOTE: {
-    label: "Notes",
+    label: copy.regions.NOTE.label,
     href: "/notes",
-    description: "Written thought",
+    description: copy.regions.NOTE.description,
     accent: "from-chart-3/80 to-accent/40",
   },
   TASK: {
-    label: "Tasks",
+    label: copy.regions.TASK.label,
     href: "/tasks",
-    description: "Things to do",
+    description: copy.regions.TASK.description,
     accent: "from-primary/25 to-muted",
   },
   PROJECT: {
-    label: "Projects",
+    label: copy.regions.PROJECT.label,
     href: "/projects",
-    description: "Containers of work",
+    description: copy.regions.PROJECT.description,
     accent: "from-ring/25 to-accent/50",
   },
   LINK: {
-    label: "Links",
+    label: copy.regions.LINK.label,
     href: "/links",
-    description: "Saved URLs",
+    description: copy.regions.LINK.description,
     accent: "from-chart-2/20 to-muted",
   },
   BOOK: {
-    label: "Books",
+    label: copy.regions.BOOK.label,
     href: "/books",
-    description: "Reading list",
+    description: copy.regions.BOOK.description,
     accent: "from-chart-1/25 to-accent/40",
   },
 };

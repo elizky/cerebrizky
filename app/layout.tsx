@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, Fira_Code, Fraunces } from "next/font/google";
 
 import { MotionProvider } from "@/components/layout/MotionProvider";
+import { copy } from "@/lib/copy";
 
 import "./globals.css";
 
@@ -21,8 +22,8 @@ const fontMono = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "Cerebrizky",
-  description: "Personal second brain",
+  title: copy.app.name,
+  description: copy.app.description,
 };
 
 export default function RootLayout({
@@ -31,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
         className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable}`}
       >

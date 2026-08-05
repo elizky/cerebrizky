@@ -1,8 +1,9 @@
 import { ItemType } from "@prisma/client";
 
 import { RegionShell } from "@/components/brain/RegionShell";
-import { CreateItemForm } from "@/components/items/CreateItemForm";
+import { CreateItemTrigger } from "@/components/items/CreateItemTrigger";
 import { ItemList } from "@/components/items/ItemList";
+import { copy } from "@/lib/copy";
 import { listItems } from "@/server/items";
 
 export default async function ProjectsPage() {
@@ -11,12 +12,10 @@ export default async function ProjectsPage() {
   return (
     <RegionShell
       layoutId="region-project"
-      title="Projects"
-      description="Containers that gather related items."
+      title={copy.regions.PROJECT.label}
+      description={copy.regions.PROJECT.pageDescription}
+      actions={<CreateItemTrigger defaultType={ItemType.PROJECT} />}
     >
-      <div className="mb-6">
-        <CreateItemForm defaultType={ItemType.PROJECT} />
-      </div>
       <ItemList items={items} />
     </RegionShell>
   );

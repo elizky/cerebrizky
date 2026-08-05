@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 
 import { signIn } from "@/auth";
+import { copy } from "@/lib/copy";
 import { db } from "@/lib/db";
 import { loginSchema, registerSchema } from "@/lib/validations/item";
 
@@ -22,7 +23,7 @@ export async function loginAction(input: unknown) {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Invalid email or password" };
+      return { error: copy.auth.invalidCredentials };
     }
     throw error;
   }
@@ -33,7 +34,7 @@ export async function registerAction(input: unknown) {
 
   const existing = await db.user.findUnique({ where: { email: data.email } });
   if (existing) {
-    return { error: "Email already registered" };
+    return { error: copy.auth.emailTaken };
   }
 
   const password = await bcrypt.hash(data.password, 10);
@@ -54,7 +55,7 @@ export async function registerAction(input: unknown) {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Account created but login failed" };
+      return { error: copy.auth.registerLoginFailed };
     }
     throw error;
   }

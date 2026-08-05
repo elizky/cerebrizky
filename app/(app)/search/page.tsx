@@ -1,6 +1,7 @@
 import { RegionShell } from "@/components/brain/RegionShell";
 import { ItemList } from "@/components/items/ItemList";
 import { SearchForm } from "@/components/items/SearchForm";
+import { copy } from "@/lib/copy";
 import { searchItems } from "@/server/items";
 
 export default async function SearchPage({
@@ -14,8 +15,8 @@ export default async function SearchPage({
   return (
     <RegionShell
       layoutId="region-search"
-      title="Search"
-      description="Find across title, content, and URLs."
+      title={copy.search.title}
+      description={copy.search.description}
     >
       <div className="mb-6">
         <SearchForm initialQuery={q ?? ""} />
@@ -23,9 +24,7 @@ export default async function SearchPage({
       {q ? (
         <ItemList items={results} />
       ) : (
-        <p className="text-sm text-muted-foreground">
-          Type a query to search the vault.
-        </p>
+        <p className="text-sm text-muted-foreground">{copy.search.emptyHint}</p>
       )}
     </RegionShell>
   );

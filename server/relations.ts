@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { copy } from "@/lib/copy";
 import { db } from "@/lib/db";
 import { relationSchema } from "@/lib/validations/item";
 import { requireUserId } from "@/server/auth";
@@ -11,7 +12,7 @@ export async function createRelation(input: unknown) {
   const data = relationSchema.parse(input);
 
   if (data.sourceId === data.targetId) {
-    throw new Error("Cannot relate an item to itself");
+    throw new Error(copy.errors.selfRelation);
   }
 
   const [source, target] = await Promise.all([
@@ -20,7 +21,7 @@ export async function createRelation(input: unknown) {
   ]);
 
   if (!source || !target) {
-    throw new Error("Items not found");
+    throw new Error(copy.errors.itemsNotFound);
   }
 
   const relation = await db.itemRelation.upsert({
@@ -56,7 +57,7 @@ export async function deleteRelation(id: string) {
   });
 
   if (!relation) {
-    throw new Error("Relation not found");
+    throw new Error(copy.errors.relationNotFound);
   }
 
   await db.itemRelation.delete({ where: { id } });

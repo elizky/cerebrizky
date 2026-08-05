@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { copy } from "@/lib/copy";
 import { quickCapture } from "@/server/items";
 
 export function QuickCapture() {
@@ -25,7 +26,7 @@ export function QuickCapture() {
         setTitle("");
         router.refresh();
       } catch {
-        setError("Could not capture");
+        setError(copy.shell.captureError);
       }
     });
   }
@@ -39,12 +40,12 @@ export function QuickCapture() {
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Capture a thought…"
+        placeholder={copy.shell.capturePlaceholder}
         className="bg-popover"
         disabled={pending}
       />
       <Button type="submit" disabled={pending || !title.trim()}>
-        {pending ? "Saving…" : "Capture"}
+        {pending ? copy.shell.saving : copy.shell.capture}
       </Button>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </motion.form>

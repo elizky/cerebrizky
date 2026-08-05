@@ -111,3 +111,57 @@
 @utility text-brand {
   @apply font-serif text-2xl tracking-tight text-card-foreground;
 }
+
+@layer components {
+  .markdown {
+    @apply text-foreground;
+  }
+
+  .markdown :where(p, ul, ol, pre, blockquote) {
+    @apply my-3;
+  }
+
+  .markdown :where(h1, h2, h3) {
+    @apply mt-4 mb-2 text-card-foreground;
+  }
+
+  .markdown h1 {
+    @apply text-2xl;
+  }
+
+  .markdown h2 {
+    @apply text-xl;
+  }
+
+  .markdown h3 {
+    @apply text-lg;
+  }
+
+  .markdown ul {
+    @apply list-disc space-y-1 pl-5;
+  }
+
+  .markdown ol {
+    @apply list-decimal space-y-1 pl-5;
+  }
+
+  .markdown a {
+    @apply text-ring underline underline-offset-2;
+  }
+
+  .markdown code {
+    @apply rounded bg-muted px-1 py-0.5 font-mono text-xs text-card-foreground;
+  }
+
+  .markdown pre {
+    @apply overflow-x-auto rounded-md border border-border bg-muted p-3;
+  }
+
+  .markdown pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .markdown blockquote {
+    @apply border-l-2 border-ring/50 pl-3 text-muted-foreground;
+  }
+}

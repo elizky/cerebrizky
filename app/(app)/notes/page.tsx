@@ -1,8 +1,9 @@
 import { ItemType } from "@prisma/client";
 
 import { RegionShell } from "@/components/brain/RegionShell";
-import { CreateItemForm } from "@/components/items/CreateItemForm";
+import { CreateItemTrigger } from "@/components/items/CreateItemTrigger";
 import { ItemList } from "@/components/items/ItemList";
+import { copy } from "@/lib/copy";
 import { listItems } from "@/server/items";
 
 export default async function NotesPage() {
@@ -14,15 +15,15 @@ export default async function NotesPage() {
   return (
     <RegionShell
       layoutId="region-note"
-      title="Notes"
-      description="Written thought in Markdown."
-    >
-      <div className="mb-6">
-        <CreateItemForm
+      title={copy.regions.NOTE.label}
+      description={copy.regions.NOTE.pageDescription}
+      actions={
+        <CreateItemTrigger
           defaultType={ItemType.NOTE}
           projects={projects.map((p) => ({ id: p.id, title: p.title }))}
         />
-      </div>
+      }
+    >
       <ItemList items={items} />
     </RegionShell>
   );

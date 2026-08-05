@@ -15,7 +15,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { DEFAULT_STATUS } from "@/lib/validations/item";
+import { copy, statusLabel } from "@/lib/copy";
+import { cn } from "@/lib/utils";
+import {
+  DEFAULT_STATUS,
+  hasWorkflow,
+  REGION_META,
+  STATUS_OPTIONS,
+} from "@/lib/validations/item";
 import { createItem } from "@/server/items";
 
 type ProjectOption = { id: string; title: string };
@@ -24,12 +31,16 @@ type CreateItemFormProps = {
   defaultType: ItemType;
   projects?: ProjectOption[];
   defaultProjectId?: string;
+  embedded?: boolean;
+  onCreated?: () => void;
 };
 
 export function CreateItemForm({
   defaultType,
   projects = [],
   defaultProjectId,
+  embedded = false,
+  onCreated,
 }: CreateItemFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -57,17 +68,15 @@ export function CreateItemForm({
           title,
           content: content || null,
           url: type === ItemType.LINK ? url : url || null,
-          status,
+          status: hasWorkflow(type) ? status : DEFAULT_STATUS[type],
           projectId: projectId === "none" ? null : projectId,
-          metadata:
-            type === ItemType.BOOK && author
-              ? { author }
-              : null,
+          metadata: type === ItemType.BOOK && author ? { author } : null,
         });
         setTitle("");
         setContent("");
         setUrl("");
         setAuthor("");
+        onCreated?.();
         router.push(
           item.type === ItemType.PROJECT
             ? `/projects/${item.id}`
@@ -75,16 +84,22 @@ export function CreateItemForm({
         );
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Create failed");
+        setError(err instanceof Error ? err.message : copy.items.createFailed);
       }
     });
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-lg border border-border bg-popover p-4">
+    <form
+      onSubmit={onSubmit}
+      className={cn(
+        "space-y-4",
+        !embedded && "rounded-lg border border-border bg-popover p-4"
+      )}
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Type</Label>
+          <Label>{copy.items.type}</Label>
           <Select value={type} onValueChange={(v) => onTypeChange(v as ItemType)}>
             <SelectTrigger>
               <SelectValue />
@@ -92,20 +107,33 @@ export function CreateItemForm({
             <SelectContent>
               {Object.values(ItemType).map((value) => (
                 <SelectItem key={value} value={value}>
-                  {value}
+                  {REGION_META[value].label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-2">
-          <Label>Status</Label>
-          <Input value={status} onChange={(e) => setStatus(e.target.value)} />
-        </div>
+        {hasWorkflow(type) ? (
+          <div className="space-y-2">
+            <Label>{copy.items.status}</Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS[type].map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {statusLabel(value)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
       </div>
 
       <div className="space-y-2">
-        <Label>Title</Label>
+        <Label>{copy.items.title}</Label>
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -115,7 +143,7 @@ export function CreateItemForm({
 
       {type === ItemType.LINK ? (
         <div className="space-y-2">
-          <Label>URL</Label>
+          <Label>{copy.items.url}</Label>
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -127,20 +155,20 @@ export function CreateItemForm({
 
       {type === ItemType.BOOK ? (
         <div className="space-y-2">
-          <Label>Author</Label>
+          <Label>{copy.items.author}</Label>
           <Input value={author} onChange={(e) => setAuthor(e.target.value)} />
         </div>
       ) : null}
 
       {type !== ItemType.PROJECT && projects.length > 0 ? (
         <div className="space-y-2">
-          <Label>Project</Label>
+          <Label>{copy.items.project}</Label>
           <Select value={projectId} onValueChange={setProjectId}>
             <SelectTrigger>
-              <SelectValue placeholder="None" />
+              <SelectValue placeholder={copy.items.none} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="none">{copy.items.none}</SelectItem>
               {projects.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
                   {project.title}
@@ -152,7 +180,7 @@ export function CreateItemForm({
       ) : null}
 
       <div className="space-y-2">
-        <Label>Content</Label>
+        <Label>{copy.items.content}</Label>
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -162,7 +190,7 @@ export function CreateItemForm({
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <Button type="submit" disabled={pending || !title.trim()}>
-        {pending ? "Creating…" : "Create"}
+        {pending ? copy.items.creating : copy.items.create}
       </Button>
     </form>
   );

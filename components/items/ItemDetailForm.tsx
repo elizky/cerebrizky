@@ -17,15 +17,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { REGION_META } from "@/lib/validations/item";
+import { copy, statusLabel } from "@/lib/copy";
+import {
+  DEFAULT_STATUS,
+  hasWorkflow,
+  isValidStatus,
+  REGION_META,
+  STATUS_OPTIONS,
+} from "@/lib/validations/item";
 import {
   archiveItem,
   deleteItem,
   restoreItem,
   updateItem,
 } from "@/server/items";
-import { assignTag, createTag, removeTag } from "@/server/tags";
 import { createRelation, deleteRelation } from "@/server/relations";
+import { assignTag, createTag, removeTag } from "@/server/tags";
 
 type TagOption = { id: string; name: string };
 type ProjectOption = { id: string; title: string };
@@ -69,7 +76,11 @@ export function ItemDetailForm({
   const [pending, startTransition] = useTransition();
   const [title, setTitle] = useState(item.title);
   const [type, setType] = useState(item.type);
-  const [status, setStatus] = useState(item.status);
+  const [status, setStatus] = useState(
+    isValidStatus(item.type, item.status)
+      ? item.status
+      : DEFAULT_STATUS[item.type]
+  );
   const [content, setContent] = useState(item.content ?? "");
   const [url, setUrl] = useState(item.url ?? "");
   const [projectId, setProjectId] = useState(item.projectId ?? "none");
@@ -98,7 +109,7 @@ export function ItemDetailForm({
         await action();
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Action failed");
+        setError(err instanceof Error ? err.message : copy.items.actionFailed);
       }
     });
   }
@@ -114,19 +125,27 @@ export function ItemDetailForm({
               id: item.id,
               title,
               type,
-              status,
+              status: hasWorkflow(type) ? status : DEFAULT_STATUS[type],
               content,
               url: url || null,
               projectId: projectId === "none" ? null : projectId,
               metadata: type === ItemType.BOOK ? { author } : null,
             });
+            router.push(`/items/${item.id}`);
           });
         }}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Type</Label>
-            <Select value={type} onValueChange={(v) => setType(v as ItemType)}>
+            <Label>{copy.items.type}</Label>
+            <Select
+              value={type}
+              onValueChange={(v) => {
+                const next = v as ItemType;
+                setType(next);
+                setStatus(DEFAULT_STATUS[next]);
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -139,38 +158,51 @@ export function ItemDetailForm({
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <Input value={status} onChange={(e) => setStatus(e.target.value)} />
-          </div>
+          {hasWorkflow(type) ? (
+            <div className="space-y-2">
+              <Label>{copy.items.status}</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS[type].map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {statusLabel(value)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
         </div>
 
         <div className="space-y-2">
-          <Label>Title</Label>
+          <Label>{copy.items.title}</Label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
 
         <div className="space-y-2">
-          <Label>URL</Label>
+          <Label>{copy.items.url}</Label>
           <Input value={url} onChange={(e) => setUrl(e.target.value)} />
         </div>
 
         {type === ItemType.BOOK ? (
           <div className="space-y-2">
-            <Label>Author</Label>
+            <Label>{copy.items.author}</Label>
             <Input value={author} onChange={(e) => setAuthor(e.target.value)} />
           </div>
         ) : null}
 
         {type !== ItemType.PROJECT ? (
           <div className="space-y-2">
-            <Label>Project</Label>
+            <Label>{copy.items.project}</Label>
             <Select value={projectId} onValueChange={setProjectId}>
               <SelectTrigger>
-                <SelectValue placeholder="None" />
+                <SelectValue placeholder={copy.items.none} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="none">{copy.items.none}</SelectItem>
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.title}
@@ -182,7 +214,7 @@ export function ItemDetailForm({
         ) : null}
 
         <div className="space-y-2">
-          <Label>Content</Label>
+          <Label>{copy.items.content}</Label>
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -192,7 +224,7 @@ export function ItemDetailForm({
 
         <div className="flex flex-wrap gap-2">
           <Button type="submit" disabled={pending}>
-            Save
+            {copy.items.save}
           </Button>
           {item.archivedAt ? (
             <Button
@@ -201,7 +233,7 @@ export function ItemDetailForm({
               disabled={pending}
               onClick={() => run(() => restoreItem(item.id))}
             >
-              Restore
+              {copy.items.restore}
             </Button>
           ) : (
             <Button
@@ -210,7 +242,7 @@ export function ItemDetailForm({
               disabled={pending}
               onClick={() => run(() => archiveItem(item.id))}
             >
-              Archive
+              {copy.items.archive}
             </Button>
           )}
           <Button
@@ -224,13 +256,13 @@ export function ItemDetailForm({
               })
             }
           >
-            Delete
+            {copy.items.delete}
           </Button>
         </div>
       </form>
 
       <section className="space-y-3">
-        <h2>Tags</h2>
+        <h2>{copy.tags.title}</h2>
         <div className="flex flex-wrap gap-2">
           {item.tags.map(({ tag }) => (
             <button
@@ -249,10 +281,10 @@ export function ItemDetailForm({
         <div className="flex flex-col gap-2 sm:flex-row">
           <Select value={tagId} onValueChange={setTagId}>
             <SelectTrigger className="sm:max-w-xs">
-              <SelectValue placeholder="Assign existing tag" />
+              <SelectValue placeholder={copy.tags.assignExisting} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Select tag</SelectItem>
+              <SelectItem value="none">{copy.tags.selectTag}</SelectItem>
               {tags
                 .filter((tag) => !assignedTagIds.has(tag.id))
                 .map((tag) => (
@@ -266,18 +298,16 @@ export function ItemDetailForm({
             type="button"
             variant="outline"
             disabled={pending || tagId === "none"}
-            onClick={() =>
-              run(() => assignTag({ itemId: item.id, tagId }))
-            }
+            onClick={() => run(() => assignTag({ itemId: item.id, tagId }))}
           >
-            Assign
+            {copy.tags.assign}
           </Button>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Input
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            placeholder="New tag"
+            placeholder={copy.tags.newTag}
             className="sm:max-w-xs"
           />
           <Button
@@ -292,21 +322,25 @@ export function ItemDetailForm({
               })
             }
           >
-            Create & assign
+            {copy.tags.createAndAssign}
           </Button>
         </div>
       </section>
 
       <section className="space-y-3">
-        <h2>Relations</h2>
+        <h2>{copy.relations.title}</h2>
         <ul className="space-y-2">
           {item.relationsFrom.map((relation) => (
             <li
               key={relation.id}
               className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm"
             >
-              <Link href={`/items/${relation.target.id}`} className="hover:underline">
-                → {relation.target.title} ({REGION_META[relation.target.type].label})
+              <Link
+                href={`/items/${relation.target.id}`}
+                className="hover:underline"
+              >
+                → {relation.target.title} (
+                {REGION_META[relation.target.type].label})
               </Link>
               <Button
                 type="button"
@@ -315,7 +349,7 @@ export function ItemDetailForm({
                 disabled={pending}
                 onClick={() => run(() => deleteRelation(relation.id))}
               >
-                Remove
+                {copy.relations.remove}
               </Button>
             </li>
           ))}
@@ -324,8 +358,12 @@ export function ItemDetailForm({
               key={relation.id}
               className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm"
             >
-              <Link href={`/items/${relation.source.id}`} className="hover:underline">
-                ← {relation.source.title} ({REGION_META[relation.source.type].label})
+              <Link
+                href={`/items/${relation.source.id}`}
+                className="hover:underline"
+              >
+                ← {relation.source.title} (
+                {REGION_META[relation.source.type].label})
               </Link>
               <Button
                 type="button"
@@ -334,7 +372,7 @@ export function ItemDetailForm({
                 disabled={pending}
                 onClick={() => run(() => deleteRelation(relation.id))}
               >
-                Remove
+                {copy.relations.remove}
               </Button>
             </li>
           ))}
@@ -342,10 +380,10 @@ export function ItemDetailForm({
         <div className="flex flex-col gap-2 sm:flex-row">
           <Select value={targetId} onValueChange={setTargetId}>
             <SelectTrigger>
-              <SelectValue placeholder="Relate to item" />
+              <SelectValue placeholder={copy.relations.relateTo} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Select item</SelectItem>
+              <SelectItem value="none">{copy.relations.selectItem}</SelectItem>
               {relatableItems
                 .filter((candidate) => candidate.id !== item.id)
                 .map((candidate) => (
@@ -360,12 +398,10 @@ export function ItemDetailForm({
             variant="outline"
             disabled={pending || targetId === "none"}
             onClick={() =>
-              run(() =>
-                createRelation({ sourceId: item.id, targetId })
-              )
+              run(() => createRelation({ sourceId: item.id, targetId }))
             }
           >
-            Link
+            {copy.relations.link}
           </Button>
         </div>
       </section>
